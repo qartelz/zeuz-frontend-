@@ -35,7 +35,7 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `https://backend.beetlezeuz.in/account/get-beetle-coins/?email=${email}`
+            `http://127.0.0.1:8000/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -52,6 +52,7 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
     if ( !selectedTrade) {
       alert("Please select a stock.");
       return;
+
     }
 
     const tradeData = {
@@ -69,24 +70,37 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
       avg_price: lastPrice || 0, // Use live price
-      invested_coin: (lastPrice || 0) * quantity,
+      invested_coin: (lastPrice || 0) * quantity, //hbhbbb
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
       margin_required: 4159.25,
+
+      
     };
-    
+
+   
+
+   
+
+
+  
+
     try {
       const response = await fetch(
         "http://127.0.0.1:8000/trades/create-trades/",
         {
           method: "POST",
           headers: {
+            
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
+          
           body: JSON.stringify(tradeData),
         }
+
+        
       );
 
       if (response.ok) {
@@ -145,20 +159,21 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-          <span>Quantity</span>
-          <div className="flex items-center space-x-2">
-            <MinusIcon
-              className="w-4 h-4 cursor-pointer"
-              onClick={() => setQuantity((q) => Math.max(0, q - 1))}
-            />
-            <span>{quantity}</span>
-            <PlusIcon
-              className="w-4 h-4 cursor-pointer"
-              onClick={() => setQuantity((q) => q + 1)}
-            />
-          </div>
-        </div>
+      <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+  <span>Quantity</span>
+  <div className="flex items-center space-x-2">
+    <MinusIcon
+      className="w-4 h-4 cursor-pointer"
+      onClick={() => setQuantity((q) => Math.max(0, Math.floor(q / 2)))}
+    />
+    <span>{quantity}</span>
+    <PlusIcon
+      className="w-4 h-4 cursor-pointer"
+      onClick={() => setQuantity((q) => q * 2)}
+    />
+  </div>
+</div>
+
 
         <div className="relative w-full">
           <label

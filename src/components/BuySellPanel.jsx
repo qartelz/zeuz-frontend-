@@ -7,7 +7,31 @@ import {
 import BeetleBalance from "./BeetleBalance";
 import { useWebSocketStock } from "./WebSocketStock";
 
-const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
+const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
+
+   const [quantity, setQuantity] = useState(selectedData?.lot_size); // Initial quantity
+
+   const handleDecrease = () => {
+    setQuantity((prev) => {
+      if (selectedData?.lot_size === 1) {
+        // If the initial value is 1, decrease step-by-step but not below 1
+        return Math.max(prev - 1, 1);
+      }
+      // For other values, subtract the current value but not below the lot size
+      return Math.max(prev - selectedData?.lot_size, selectedData?.lot_size);
+    });
+  };
+  
+  const handleIncrease = () => {
+    setQuantity((prev) => {
+      if (selectedData?.lot_size === 1) {
+        // If the initial value is 1, increase step-by-step
+        return prev + 1;
+      }
+      // For other values, add the current value
+      return Math.max(prev + selectedData?.lot_size, selectedData?.lot_size);
+    });
+  };
   
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -20,10 +44,10 @@ const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
   const [isOrderDropdownOpen, setIsOrderDropdownOpen] = useState(false);
 
   const [isBuy, setIsBuy] = useState(initialIsBuy);
-  console.log(initialIsBuy)
-  const [quantity, setQuantity] = useState(selectedData?.lot_size || 0);
+  console.log(initialIsBuy);
+  // const [quantity, setQuantity] = useState(selectedData?.lot_size || 0);
   const [beetleCoins, setBeetleCoins] = useState(null);
- console.log(selectedData,"this is the selected")
+  // console.log(selectedData, "this is the selected");
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -54,7 +78,7 @@ const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
     const tradeData = {
       user: user_id,
       token_id: selectedData.token_id,
-      exchange: selectedData.exchange || "NSE",
+      exchange: selectedData.exchange,
       trading_symbol: selectedData.trading_symbol || "",
       series: selectedData.series || "EQ",
       lot_size: selectedData.lot_size || 0,
@@ -62,29 +86,42 @@ const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
       display_name: selectedData.display_name || "",
       company_name: selectedData.company_name || "",
       expiry_date: selectedData.expiry_date || null,
-      segment: selectedData.segment || "EQUITY",
+      segment: selectedData.segment,
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: lastPrice || 0,
+      avg_price: lastPrice ,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
-      invested_coin: (lastPrice || 0) * quantity,
+      invested_coin: (lastPrice) * quantity,
       trade_status: "incomplete",
-      ticker: selectedData.ticker || "",
-      margin_required:4159.25,
+      ticker: selectedData.ticker ,
+      margin_required: 4159.25,
     };
-    console.log(tradeData);
+
+   
+
+    const apiUrl =
+      selectedData.exchange === "NSE"
+        ? "http://127.0.0.1:8000/trades/create-trades/"
+        : selectedData.exchange === "NFO"
+        ? "http://127.0.0.1:8000/trades/create-futures/"
+        : null;
+
+    if (!apiUrl) {
+      console.error("Invalid segment:", selectedData.segment);
+      return;
+    }
+
+    console.log(tradeData, "this is the tradeqqqqqqqqqqqqqq data");
+
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/trades/create-trades/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(tradeData),
-        }
-      );
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(tradeData),
+      });
 
       if (response.ok) {
         const result = await response.json();
@@ -146,13 +183,15 @@ const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
           <span>Quantity</span>
           <div className="flex items-center space-x-2">
             <MinusIcon
+             onClick={handleDecrease}
               className="w-4 h-4 cursor-pointer"
-              onClick={() => setQuantity((q) => Math.max(0, q - 1))}
+             
             />
             <span>{quantity}</span>
             <PlusIcon
+             onClick={handleIncrease}
               className="w-4 h-4 cursor-pointer"
-              onClick={() => setQuantity((q) => q + 1)}
+              
             />
           </div>
         </div>
@@ -187,7 +226,8 @@ const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
       <div className="flex px-10 text-white text-bold space-x-2">
         <button
           className={`w-full px-2 py-2 rounded-md ${
-            isBuy ? "bg-green-800" : "bg-[#D83232]"} text-white`}
+            isBuy ? "bg-green-800" : "bg-[#D83232]"
+          } text-white`}
           onClick={handleTrade}
         >
           {isBuy ? "Buy" : "Sell"}
@@ -195,7 +235,7 @@ const BuySellPanel = ({ selectedData, onClose,initialIsBuy, }) => {
 
         <button
           className="w-full bg-gray-500 py-2 rounded-md"
-          onClick={onClose} 
+          onClick={onClose}
         >
           Cancel
         </button>
