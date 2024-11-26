@@ -1,0 +1,10 @@
+[build]
+command = "npm run build"
+publish = "build"
+
+[build.environment]
+NODE_VERSION = "16" # Replace with your Node.js version, e.g., "16" or "18"
+NPM_FLAGS = "--legacy-peer-deps"
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
