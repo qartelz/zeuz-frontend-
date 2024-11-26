@@ -58,7 +58,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `http://127.0.0.1:8000/account/get-beetle-coins/?email=${email}`
+            `https://backend.beetlezeuz.in/account/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -103,9 +103,9 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
 
     const apiUrl =
       selectedData.exchange === "NSE"
-        ? "http://127.0.0.1:8000/trades/create-trades/"
+        ? "https://backend.beetlezeuz.in/trades/create-trades/"
         : selectedData.exchange === "NFO"
-        ? "http://127.0.0.1:8000/trades/create-futures/"
+        ? "https://backend.beetlezeuz.in/trades/create-futures/"
         : null;
 
     if (!apiUrl) {

@@ -17,6 +17,8 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
+  
+
 
   const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
   const [isOrderDropdownOpen, setIsOrderDropdownOpen] = useState(false);
@@ -35,7 +37,7 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `http://127.0.0.1:8000/get-beetle-coins/?email=${email}`
+            `https://backend.beetlezeuz.in/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -81,9 +83,9 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
 
     const apiUrl =
       selectedData.exchange === "NSE"
-        ? "http://127.0.0.1:8000/trades/create-trades/"
+        ? "https://backend.beetlezeuz.in/trades/create-trades/"
         : selectedData.exchange === "NFO"
-          ? "http://127.0.0.1:8000/trades/create-futures/"
+          ? "https://backend.beetlezeuz.in/trades/create-futures/"
           : null;
 
     if (!apiUrl) {

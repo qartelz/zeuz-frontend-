@@ -7,6 +7,10 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
   const [volume, setVolume] = useState("0.00");
   const [percentChange, setPercentChange] = useState("0.00");
 
+  const authDataString = localStorage.getItem("authData");
+  const authData = authDataString ? JSON.parse(authDataString) : null;
+  const broadcast_token= authData?.broadcast_token;
+
   useEffect(() => {
     const heartbeatInterval = 60000; // 60 seconds
     const touchlineInterval = 5000; // 5 seconds
@@ -21,7 +25,7 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
         t: "c",
         uid: "KE0070",
         actid: "KE0070",
-        susertoken: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzMyNjAyNTM3LCJleHAiOjE3MzI2ODcyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzMyNjAyNTM3OTYzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.a0Y4uwhBsDC4TWTgrTlcbIaD9C-1bMcZQ5ebSPtCLB4", // Use environment variable
+        susertoken: `${broadcast_token}`,
         source: "API",
       };
 

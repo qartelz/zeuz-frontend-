@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 const TradeCard = ({ trade,onOpenModal  }) => {
+
+  const authDataString = localStorage.getItem("authData");
+  const authData = authDataString ? JSON.parse(authDataString) : null;
+  const broadcast_token= authData?.broadcast_token;
+
   const [lastPrice, setLastPrice] = useState(trade.avg_price || "0.00");
   const [isExpanded, setIsExpanded] = useState(false);
   const handleToggleExpand = () => {
@@ -26,7 +31,7 @@ const TradeCard = ({ trade,onOpenModal  }) => {
         t: "c",
         uid: "KE0070",
         actid: "KE0070",
-        susertoken: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzMyNjAyNTM3LCJleHAiOjE3MzI2ODcyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzMyNjAyNTM3OTYzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.a0Y4uwhBsDC4TWTgrTlcbIaD9C-1bMcZQ5ebSPtCLB4", // Replace with a dynamic or environment-based token
+        susertoken: `${broadcast_token}`,
         source: "API",
       };
       ws.send(JSON.stringify(initialData));
@@ -102,7 +107,8 @@ const TradeCard = ({ trade,onOpenModal  }) => {
                         className="text-lg font-semibold flex items-center">
 
 {(() => {
-      const pnl = (parseFloat(lastPrice) - parseFloat(trade.avg_price)).toFixed(2);
+      const pnl = ((parseFloat(lastPrice) - parseFloat(trade.avg_price)) * trade.quantity).toFixed(2);
+
       const isPositive = pnl >= 0; // Check if profit or loss
       return (
         <>

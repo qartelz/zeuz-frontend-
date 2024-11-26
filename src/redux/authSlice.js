@@ -9,7 +9,7 @@ export const login = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/account/login/",
+        "https://backend.beetlezeuz.in/account/login/",
         { email, password }
       );
       console.log("Login Successful:", response.data);
