@@ -8,10 +8,10 @@ import {
 import BeetleBalance from "./BeetleBalance";
 import { useWebSocketTrade } from "./WebSocketTrade";
 
-const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId  }) => {
+const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setModalOpen, onTradeSuccess }) => {
 
   const { lastPrice } = useWebSocketTrade();
-  
+
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -49,7 +49,7 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
   }, []);
 
   const handleTrade = async () => {
-    if ( !selectedTrade) {
+    if (!selectedTrade) {
       alert("Please select a stock.");
       return;
 
@@ -69,44 +69,47 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
       segment: selectedData.segment || "EQUITY",
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: lastPrice || 0, // Use live price
-      invested_coin: (lastPrice || 0) * quantity, //hbhbbb
+      avg_price: lastPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
+      invested_coin: (lastPrice || 0) * quantity,
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
-      margin_required: 4159.25,
-
-      
+      "margin_required": 4159.25,
     };
 
-   
-
-   
 
 
-  
+    const apiUrl =
+      selectedData.exchange === "NSE"
+        ? "http://127.0.0.1:8000/trades/create-trades/"
+        : selectedData.exchange === "NFO"
+          ? "http://127.0.0.1:8000/trades/create-futures/"
+          : null;
+
+    if (!apiUrl) {
+      console.error("Invalid segment:", selectedData.segment);
+      return;
+    }
+
+
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/trades/create-trades/",
-        {
-          method: "POST",
-          headers: {
-            
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          
-          body: JSON.stringify(tradeData),
-        }
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(tradeData),
+      });
 
-        
-      );
 
       if (response.ok) {
         const result = await response.json();
         console.log("Trade created successfully:", result);
         alert("Trade created successfully!");
+        setModalOpen(false);
+        onTradeSuccess();
       } else {
         console.error("Error creating trade:", response.statusText);
         alert("Failed to create trade. Please try again.");
@@ -136,21 +139,19 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
         <span className="text-[#7D7D7D] text-xl font-bold">I want to:</span>
         <div className="flex space-x-2">
           <button
-            className={`px-8 py-2 rounded-md ${
-              isBuy
+            className={`px-8 py-2 rounded-md ${isBuy
                 ? "bg-[#E8FCF1] text-green-500 border font-bold"
                 : "bg-transparent text-[#7D7D7D]"
-            }`}
+              }`}
             onClick={() => setIsBuy(true)}
           >
             Buy
           </button>
           <button
-            className={`px-8 py-2 rounded-md ${
-              !isBuy
+            className={`px-8 py-2 rounded-md ${!isBuy
                 ? "bg-[#E8FCF1] text-red-500 border font-bold"
                 : "bg-transparent text-[#7D7D7D]"
-            }`}
+              }`}
             onClick={() => setIsBuy(false)}
           >
             Sell
@@ -159,20 +160,20 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
       </div>
 
       <div className="space-y-2">
-      <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-  <span>Quantity</span>
-  <div className="flex items-center space-x-2">
-    <MinusIcon
-      className="w-4 h-4 cursor-pointer"
-      onClick={() => setQuantity((q) => Math.max(0, Math.floor(q / 2)))}
-    />
-    <span>{quantity}</span>
-    <PlusIcon
-      className="w-4 h-4 cursor-pointer"
-      onClick={() => setQuantity((q) => q * 2)}
-    />
-  </div>
-</div>
+        <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+          <span>Quantity</span>
+          <div className="flex items-center space-x-2">
+            <MinusIcon
+              className="w-4 h-4 cursor-pointer"
+              onClick={() => setQuantity((q) => Math.max(0, Math.floor(q / 2)))}
+            />
+            <span>{quantity}</span>
+            <PlusIcon
+              className="w-4 h-4 cursor-pointer"
+              onClick={() => setQuantity((q) => q * 2)}
+            />
+          </div>
+        </div>
 
 
         <div className="relative w-full">
@@ -226,9 +227,8 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
 
       <div className="flex px-10 text-white text-bold space-x-2">
         <button
-          className={`w-full px-2 py-2 rounded-md ${
-            isBuy ? "bg-green-800" : "bg-[#D83232]"
-          } text-white`}
+          className={`w-full px-2 py-2 rounded-md ${isBuy ? "bg-green-800" : "bg-[#D83232]"
+            } text-white`}
           onClick={handleTrade}
         >
           {isBuy ? "Buy" : "Sell"}
@@ -236,7 +236,7 @@ const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId 
 
         <button
           className="w-full bg-gray-500 py-2 rounded-md"
-          onClick={onClose} 
+          onClick={onClose}
         >
           Cancel
         </button>

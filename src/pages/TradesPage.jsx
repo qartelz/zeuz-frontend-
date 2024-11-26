@@ -11,13 +11,13 @@ const TradesPage = () => {
   
   const [activeTab, setActiveTab] = useState("Open Positions");
   const [trades, setTrades] = useState([]);
-  console.log(setTrades, "trades ");
+  console.log(setTrades, "tradesssssssssssssssssssssssssssss ");
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
 
-  useEffect(() => {
+
     const fetchTrades = async () => {
       try {
         const response = await axios.get(
@@ -38,9 +38,15 @@ const TradesPage = () => {
         console.error("Error fetching trades:", error);
       }
     };
-
-    fetchTrades();
-  }, [accessToken]);
+    useEffect(() => {
+      fetchTrades();
+    }, [accessToken]);
+  
+    // Refresh trades (pass this function to OpenOrders)
+    const refreshTrades = () => {
+      fetchTrades();
+    };
+  
 
   return (
     <>
@@ -71,7 +77,8 @@ const TradesPage = () => {
         </div>
 
         {activeTab === "Open Positions" && (
-          <OpenOrders trades={trades} />
+
+          <OpenOrders trades={trades} refreshTrades={refreshTrades} />
         )}
 
         {activeTab === "Closed Positions" && (

@@ -66,7 +66,7 @@ const PracticePage = () => {
               Equity
             </button>
 
-            <button
+            {/* <button
               onClick={() =>
                 openModal(
                   "Futures Trading: Predict the Future",
@@ -94,7 +94,7 @@ const PracticePage = () => {
               className="px-4 py-2 bg-red-500 text-white rounded-lg"
             >
                Options
-            </button>
+            </button> */}
           </div>
         </div>
 

@@ -4,8 +4,11 @@ import Navbar from "../components/Navbar";
 import dayjs from "dayjs";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 export default function UserProfile() {
+
+  const { name} = useSelector((state) => state.auth);
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
@@ -95,7 +98,7 @@ export default function UserProfile() {
           </div>
 
           {/* User Details */}
-          <h2 className="text-2xl font-semibold mb-2">User Name</h2>
+          <h2 className="text-2xl font-semibold mb-2">{name || "User Name"}</h2>
           <p className="text-gray-600 mb-4">Location</p>
           <p className="text-center text-gray-500 max-w-md mb-8">
             A brief paragraph about the user, detailing interests, background,

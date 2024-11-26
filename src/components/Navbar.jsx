@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import {  FaChevronDown, FaUser, FaBars, FaTimes, FaSignOutAlt } from 'react-icons/fa';
 import { NavLink, useNavigate  } from 'react-router-dom';
 import LogoSvg from '../assets/svg/LogoSvg';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/authSlice';
 
+
 export default function Navbar() {
+  const { name} = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
@@ -84,7 +86,7 @@ export default function Navbar() {
               className="w-10 h-10 rounded-full"
             />
             <div className="text-left">
-              <p className="text-sm font-semibold text-black">Username</p>
+              <p className="text-sm font-semibold text-black">{name || "User Name"}</p>
               <p className="text-xs text-gray-500">Student</p>
             </div>
             <FaChevronDown className="text-sm text-gray-700" />
