@@ -42,6 +42,9 @@ const OpenOrders = ({ trades, maxTrades }) => {
     <>
       <div className="max-w-5xl mx-auto mt-8 p-4">
         {openTrades.length > 0 && displayedTrades.length > 0 ? (
+          
+
+          
           displayedTrades.map((trade, index) => (
             <div
               key={trade.id || index}

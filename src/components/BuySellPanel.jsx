@@ -11,6 +11,8 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
 
    const [quantity, setQuantity] = useState(selectedData?.lot_size); // Initial quantity
 
+   console.log(selectedData,"the selected data is")
+
    const handleDecrease = () => {
     setQuantity((prev) => {
       if (selectedData?.lot_size === 1) {
@@ -78,7 +80,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
     const tradeData = {
       user: user_id,
       token_id: selectedData.token_id,
-      exchange: selectedData.exchange,
+      exchange: selectedData.exchange || "NSE",
       trading_symbol: selectedData.trading_symbol || "",
       series: selectedData.series || "EQ",
       lot_size: selectedData.lot_size || 0,
@@ -86,15 +88,15 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       display_name: selectedData.display_name || "",
       company_name: selectedData.company_name || "",
       expiry_date: selectedData.expiry_date || null,
-      segment: selectedData.segment,
+      segment: selectedData.segment || "EQUITY",
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: lastPrice ,
+      avg_price: lastPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
-      invested_coin: (lastPrice) * quantity,
+      invested_coin: (lastPrice || 0) * quantity,
       trade_status: "incomplete",
-      ticker: selectedData.ticker ,
-      margin_required: 4159.25,
+      ticker: selectedData.ticker || "",
+      "margin_required":4159.25,
     };
 
    
@@ -111,7 +113,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       return;
     }
 
-    console.log(tradeData, "this is the tradeqqqqqqqqqqqqqq data");
+    
 
     try {
       const response = await fetch(apiUrl, {

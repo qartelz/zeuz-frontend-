@@ -6,8 +6,8 @@ const StockInfo = ({ selectedData }) => {
 
   const data = [
     { value: `${percentChange}%`, label: "24h Change" },
-    { value: "+1.25%", label: "24h High" },
-    { value: "+1.25%", label: "24h Low" },
+    // { value: "+1.25%", label: "24h High" },
+    // { value: "+1.25%", label: "24h Low" },
     { value: volume, label: "Market Volume" },
   ];
 

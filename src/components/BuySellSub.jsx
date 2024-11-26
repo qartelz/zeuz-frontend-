@@ -9,7 +9,7 @@ import BeetleBalance from "./BeetleBalance";
 import { useWebSocketTrade } from "./WebSocketTrade";
 
 const BuySellSub = ({ selectedData,selectedTrade, onClose, initialIsBuy,tokenId  }) => {
-  // const { prices } = useWebSocketTrade(); // Access live prices from context
+
   const { lastPrice } = useWebSocketTrade();
   
 
