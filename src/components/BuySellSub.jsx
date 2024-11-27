@@ -78,7 +78,10 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       ticker: selectedData.ticker || "",
       "margin_required": 4159.25,
     };
-
+    if (lastPrice <= 0) {
+      alert("Cannot execute trade: Invalid price.");
+      return;
+    }
 
 
     const apiUrl =

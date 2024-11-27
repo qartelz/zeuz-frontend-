@@ -76,6 +76,11 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       alert("Please select a stock.");
       return;
     }
+    if (lastPrice <= 0) {
+      alert("Cannot execute trade: Invalid price.");
+      return;
+    }
+
 
     const tradeData = {
       user: user_id,
