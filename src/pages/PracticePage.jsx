@@ -37,7 +37,7 @@ const PracticePage = () => {
     }
 
     // Pass the mapped value as state to the LearnPage
-    navigate('/practice/learn', { state: { heading: buttonTextValue } });
+    navigate('/markets/learn', { state: { heading: buttonTextValue } });
   };
 
   return (

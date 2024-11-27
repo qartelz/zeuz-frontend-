@@ -127,13 +127,13 @@ const LearnPage = () => {
     <div className="p-4 text-gray-800 min-h-screen">
       <Navbar />
 
-      <div className="flex items-center gap-2 p-10">
-        <span>Practice</span>
+      <div className="flex items-center gap-2 px-10 py-5">
+        <span>Markets</span>
         <ChevronRightIcon className="h-4 w-4" />
         <span className="font-bold text-[#026E78]">{heading}</span>
       </div>
 
-      <div className="flex flex-col items-center mt-12">
+      <div className="flex flex-col justify-center  items-center">
         {!selectedData && <BeetleBalance />}
 
         <SearchBar
@@ -158,11 +158,11 @@ const LearnPage = () => {
                 <p className="text-xl font-semibold mb-4">
                   {results.length} results found for "{searchQuery}"
                 </p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   {results.map((stock, index) => (
                     <div
                       key={index}
-                      className="p-4 bg-white shadow rounded-lg cursor-pointer"
+                      className="p-10 bg-white shadow rounded-lg cursor-pointer"
                       onClick={() => handleSelectStock(stock)}
                     >
                       <div className="text-lg font-bold">
@@ -188,8 +188,8 @@ const LearnPage = () => {
 
       {selectedData && !searchQuery && heading !== "Options Trading" && (
         <WebSocketStock selectedData={selectedData}>
-          <div className="grid grid-cols-1 md:grid-cols-[70%_30%] gap-6 p-6">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-[70%_25%] gap-6 p-6">
+            <div >
               <StockInfo
                 selectedData={selectedData}
                 stocks={stocks}

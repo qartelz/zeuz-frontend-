@@ -31,9 +31,9 @@ function App() {
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/token" element={<AdminPage />} />       
                 <Route path="/" element={<PrivateRoute element={<DashboardPage />} />} />   
-                <Route path="/practice" element={<PrivateRoute element={<PracticePage />} />} />        
-                <Route path="/practice/learn" element={<PrivateRoute element={<LearnPage />} />} />
-                <Route path="/my-trades" element={<PrivateRoute element={<TradesPage />} />} />
+                <Route path="/markets" element={<PrivateRoute element={<PracticePage />} />} />        
+                <Route path="/markets/learn" element={<PrivateRoute element={<LearnPage />} />} />
+                <Route path="/portfolio" element={<PrivateRoute element={<TradesPage />} />} />
                 <Route path="/my-profile" element={<PrivateRoute element={<UserProfile />} />} />
               </Routes>
             </BrowserRouter>

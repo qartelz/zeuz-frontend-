@@ -7,8 +7,13 @@ import {
 } from "@heroicons/react/24/outline";
 import BeetleBalance from "./BeetleBalance";
 import { useWebSocketTrade } from "./WebSocketTrade";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 
 const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setModalOpen, onTradeSuccess }) => {
+
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
   const { lastPrice } = useWebSocketTrade();
 
@@ -112,9 +117,16 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       if (response.ok) {
         const result = await response.json();
         console.log("Trade created successfully:", result);
-        alert("Trade created successfully!");
-        setModalOpen(false);
+        // alert("Trade created successfully!");
+        
         onTradeSuccess();
+        setAlertMessage(result.message);
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+        setModalOpen(false);
+        onTradeSuccess(); // Notify parent after modal closes
+      }, 3000);
       } else {
         console.error("Error creating trade:", response.statusText);
         alert("Failed to create trade. Please try again.");
@@ -126,7 +138,15 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
   };
 
   return (
-    <div className="p-4 bg-transparent rounded-md space-y-4">
+    <div className=" bg-transparent rounded-md space-y-4 relative pt-16   px-10 ">
+       {showAlert && (
+    <div className="absolute top-0 left-0 w-full z-50  px-4">
+      <Alert variant="filled" severity="success">{alertMessage}
+</Alert>
+
+
+    </div>
+  )}
       <div className="flex items-center space-x-4 whitespace-nowrap">
         <BeetleBalance />
         {beetleCoins && (

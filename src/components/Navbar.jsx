@@ -28,8 +28,8 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Dashboard", path: "/" },
-    { name: "Practice", path: "/practice" },
-    { name: "My Trades", path: "/my-trades" },
+    { name: "Markets", path: "/markets" },
+    { name: "Portfolio", path: "/portfolio" },
     
   ];
 

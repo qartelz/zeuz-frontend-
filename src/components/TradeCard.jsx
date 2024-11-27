@@ -108,8 +108,10 @@ const TradeCard = ({ trade,onOpenModal  }) => {
 
 {(() => {
       const pnl = ((parseFloat(lastPrice) - parseFloat(trade.avg_price)) * trade.quantity).toFixed(2);
+      
 
       const isPositive = pnl >= 0; // Check if profit or loss
+      
       return (
         <>
                       

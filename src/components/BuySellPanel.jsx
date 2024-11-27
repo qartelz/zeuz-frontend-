@@ -6,8 +6,15 @@ import {
 } from "@heroicons/react/24/outline";
 import BeetleBalance from "./BeetleBalance";
 import { useWebSocketStock } from "./WebSocketStock";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+
+
 
 const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
+
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
    const [quantity, setQuantity] = useState(selectedData?.lot_size); // Initial quantity
 
@@ -133,7 +140,11 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       if (response.ok) {
         const result = await response.json();
         console.log("Trade created successfully:", result);
-        alert("Trade created successfully!");
+        // console.log(result,"reswwwwwwwwwwwwwwwwwwponse is vukbbkigyuk")
+        // alert(result.message);
+        setAlertMessage(result.message);
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
       } else {
         console.error("Error creating trade:", response.statusText);
         alert("Failed to create trade. Please try again.");
@@ -142,20 +153,37 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       console.error("Error during API call:", error);
       alert("An error occurred. Please try again later.");
     }
+   
   };
 
   return (
-    <div className="p-4 bg-transparent rounded-md space-y-4">
+    <div className="px-4  bg-transparent rounded-md space-y-4 relative pt-12">
+      
+      {showAlert && (
+    <div className="absolute top-0 left-0 w-full z-50 ">
+      <Alert variant="filled" severity="success">{alertMessage}
+</Alert>
+    </div>
+  )}
+
+
+      
       <div className="flex items-center space-x-4 whitespace-nowrap">
+      
         <BeetleBalance />
+       
+     
+        
+        
         {beetleCoins && (
           <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
             <span>Beetle Coins: {beetleCoins.amount}</span>
           </div>
         )}
       </div>
+      
 
-      <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+      <div className="bg-white text-[#7D7D7D] font-bold border shadow-sm p-2 rounded-md">
         <span>{selectedData?.display_name || "No stock selected"}</span>
       </div>
 
@@ -230,7 +258,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         </div>
       </div>
 
-      <div className="flex px-10 text-white text-bold space-x-2">
+      <div className="flex text-white text-bold space-x-2">
         <button
           className={`w-full px-2 py-2 rounded-md ${
             isBuy ? "bg-green-800" : "bg-[#D83232]"
@@ -239,6 +267,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         >
           {isBuy ? "Buy" : "Sell"}
         </button>
+        
 
         <button
           className="w-full bg-gray-500 py-2 rounded-md"
@@ -246,7 +275,10 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         >
           Cancel
         </button>
+        
       </div>
+     
+      
     </div>
   );
 };

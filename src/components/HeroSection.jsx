@@ -49,11 +49,11 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
   
 
   const navigateToAllTrades = () => {
-    navigate("/my-trades");
+    navigate("/portfolio");
   };
 
   const navigateToPractice = () => {
-    navigate("/practice");
+    navigate("/markets");
   };
 
   return (
