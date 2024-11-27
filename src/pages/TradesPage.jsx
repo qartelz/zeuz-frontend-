@@ -42,7 +42,7 @@ const TradesPage = () => {
       fetchTrades();
     }, [accessToken]);
   
-    // Refresh trades (pass this function to OpenOrders)
+    
     const refreshTrades = () => {
       fetchTrades();
     };

@@ -132,11 +132,11 @@ export default function UserProfile() {
           {activeTab === "Portfolio" && (
             <div className="w-full flex flex-col items-center">
               {/* Total Portfolio Value */}
-              <InfoBox
+              {/* <InfoBox
                 title="Total"
                 subtitle="Portfolio Value"
                 amount="12,345.67"
-              />
+              /> */}
 
               <div className="flex flex-col md:grid grid-cols-3 gap-4">
               <InfoBox

@@ -4,7 +4,7 @@ import BuySellSub from "./BuySellSub";
 import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
 const ClosedOrders = ({ trades }) => {
   const closedTrades = trades.filter(
-    (trade) => trade.trade_status === "complete"
+    (trade) => trade.trade_status === "completed"
   );
 
   console.log(closedTrades,"This is the closeddddddddddd trade")
