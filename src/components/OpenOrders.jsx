@@ -4,6 +4,21 @@ import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
 import TradeCard from "./TradeCard";
 
 const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
+
+  const [pnlMap, setPnlMap] = useState({});
+
+   // Function to update PnL for a specific trade
+   const handlePnLUpdate = (tradeId, newPnL) => {
+    setPnlMap((prev) => ({
+      ...prev,
+      [tradeId]: newPnL, // Update PnL for the specific trade
+    }));
+  };
+
+   // Calculate total PnL
+   const totalPnL = Object.values(pnlMap).reduce((sum, pnl) => sum + pnl, 0);
+
+
   const openTrades = trades.filter(
     (trade) => trade.trade_status === "incomplete"
   );
@@ -33,6 +48,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
         displayedTrades.map((trade) => (
           <TradeCard key={trade.id || trade.token_id}
            trade={trade}
+           onPnLChange={(newPnL) => handlePnLUpdate(trade.token_id, newPnL)} // Pass unique ID and PnL
            onOpenModal={handleOpenModal} />
         ))
       ) : (
@@ -58,6 +74,17 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
           </WebSocketTrade>
         )}
     </div>
+
+     {/* Display total PnL */}
+     <div className="p-4 mb-4 bg-white shadow-md rounded">
+        <h2 className="text-lg font-semibold text-gray-800">Total PnL</h2>
+        <p className={`text-lg font-semibold ${totalPnL >= 0 ? "text-green-500" : "text-red-500"}`}>
+          {totalPnL.toFixed(2)}
+        </p>
+      </div>
+    
+
+      
     </>
   );
 };

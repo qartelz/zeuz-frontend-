@@ -6,42 +6,54 @@ import {
 } from "@heroicons/react/24/outline";
 import BeetleBalance from "./BeetleBalance";
 import { useWebSocketStock } from "./WebSocketStock";
-import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
-
-
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
 const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
-
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
-   const [quantity, setQuantity] = useState(selectedData?.lot_size); // Initial quantity
+  const [quantity, setQuantity] = useState("1"); // Initial quantity
 
-   console.log(selectedData,"the selected data is")
+  const handleIncrease = () => setQuantity((prev) => prev + 1);
+  const handleDecrease = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const handleInputChange = (e) => {
+    const value = e.target.value.replace(/^0+/, "");
+    if (value === "") {
+      // If the input is cleared, don't show 0; default to 1
+      setQuantity("");
+    } else {
+      const parsedValue = parseInt(value, 10);
+      if (!isNaN(parsedValue)) {
+        setQuantity(parsedValue);
+      }
+    }
+  };
 
-   const handleDecrease = () => {
-    setQuantity((prev) => {
-      if (selectedData?.lot_size === 1) {
-        // If the initial value is 1, decrease step-by-step but not below 1
-        return Math.max(prev - 1, 1);
-      }
-      // For other values, subtract the current value but not below the lot size
-      return Math.max(prev - selectedData?.lot_size, selectedData?.lot_size);
-    });
-  };
-  
-  const handleIncrease = () => {
-    setQuantity((prev) => {
-      if (selectedData?.lot_size === 1) {
-        // If the initial value is 1, increase step-by-step
-        return prev + 1;
-      }
-      // For other values, add the current value
-      return Math.max(prev + selectedData?.lot_size, selectedData?.lot_size);
-    });
-  };
-  
+  console.log(selectedData, "the selected data is");
+
+  // const handleDecrease = () => {
+  //   setQuantity((prev) => {
+  //     if (selectedData?.lot_size === 1) {
+  //       // If the initial value is 1, decrease step-by-step but not below 1
+  //       return Math.max(prev - 1, 1);
+  //     }
+  //     // For other values, subtract the current value but not below the lot size
+  //     return Math.max(prev - selectedData?.lot_size, selectedData?.lot_size);
+  //   });
+  // };
+
+  // const handleIncrease = () => {
+  //   setQuantity((prev) => {
+  //     if (selectedData?.lot_size === 1) {
+  //       // If the initial value is 1, increase step-by-step
+  //       return prev + 1;
+  //     }
+  //     // For other values, add the current value
+  //     return Math.max(prev + selectedData?.lot_size, selectedData?.lot_size);
+  //   });
+  // };
+
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
@@ -88,7 +100,6 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       return;
     }
 
-
     const tradeData = {
       user: user_id,
       token_id: selectedData.token_id,
@@ -108,10 +119,8 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       invested_coin: (lastPrice || 0) * quantity,
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
-      "margin_required":4159.25,
+      margin_required: 4159.25,
     };
-
-   
 
     const apiUrl =
       selectedData.exchange === "NSE"
@@ -124,8 +133,6 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       console.error("Invalid segment:", selectedData.segment);
       return;
     }
-
-    
 
     try {
       const response = await fetch(apiUrl, {
@@ -143,8 +150,8 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         // console.log(result,"reswwwwwwwwwwwwwwwwwwponse is vukbbkigyuk")
         // alert(result.message);
         setAlertMessage(result.message);
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 3000);
       } else {
         console.error("Error creating trade:", response.statusText);
         alert("Failed to create trade. Please try again.");
@@ -153,35 +160,27 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       console.error("Error during API call:", error);
       alert("An error occurred. Please try again later.");
     }
-   
   };
 
   return (
     <div className="px-4  bg-transparent rounded-md space-y-4 relative pt-12">
-      
       {showAlert && (
-    <div className="absolute top-0 left-0 w-full z-50 ">
-      <Alert variant="filled" severity="success">{alertMessage}
-</Alert>
-    </div>
-  )}
+        <div className="absolute top-0 left-0 w-full z-50 ">
+          <Alert variant="filled" severity="success">
+            {alertMessage}
+          </Alert>
+        </div>
+      )}
 
-
-      
       <div className="flex items-center space-x-4 whitespace-nowrap">
-      
         <BeetleBalance />
-       
-     
-        
-        
+
         {beetleCoins && (
           <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
             <span>Beetle Coins: {beetleCoins.amount}</span>
           </div>
         )}
       </div>
-      
 
       <div className="bg-white text-[#7D7D7D] font-bold border shadow-sm p-2 rounded-md">
         <span>{selectedData?.display_name || "No stock selected"}</span>
@@ -214,22 +213,27 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-          <span>Quantity</span>
-          <div className="flex items-center space-x-2">
-            <MinusIcon
-             onClick={handleDecrease}
-              className="w-4 h-4 cursor-pointer"
-             
-            />
-            <span>{quantity}</span>
-            <PlusIcon
-             onClick={handleIncrease}
-              className="w-4 h-4 cursor-pointer"
-              
-            />
-          </div>
-        </div>
+      <div className="flex items-center  bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+        <span className="mr-4">Quantity:</span>
+        <MinusIcon
+          onClick={handleDecrease}
+          className="w-4 h-4 cursor-pointer"
+        />
+      <input
+        type="number"
+        value={quantity}
+        onChange={handleInputChange}
+        className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
+        min="0"
+      />
+      <div className="flex items-center space-x-2">
+      
+        <PlusIcon
+          onClick={handleIncrease}
+          className="w-4 h-4 cursor-pointer"
+        />
+      </div>
+    </div>
 
         <div className="relative w-full">
           <label
@@ -267,7 +271,6 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         >
           {isBuy ? "Buy" : "Sell"}
         </button>
-        
 
         <button
           className="w-full bg-gray-500 py-2 rounded-md"
@@ -275,10 +278,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         >
           Cancel
         </button>
-        
       </div>
-     
-      
     </div>
   );
 };

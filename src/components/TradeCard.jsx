@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-const TradeCard = ({ trade,onOpenModal  }) => {
+const TradeCard = ({ trade,onOpenModal,onPnLChange  }) => {
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -36,7 +36,7 @@ const TradeCard = ({ trade,onOpenModal  }) => {
       };
       ws.send(JSON.stringify(initialData));
 
-      // Send touchline data periodically
+      
       touchlineTimer = setInterval(() => {
         ws.send(
           JSON.stringify({
@@ -51,9 +51,14 @@ const TradeCard = ({ trade,onOpenModal  }) => {
       console.log(`Message for ${trade.display_name}:`, event.data);
       try {
         const data = JSON.parse(event.data);
-        if (data.lp) setLastPrice(data.lp);
+        if (data.lp)
+        { setLastPrice(data.lp);
+
+        const newPnL = ((lastPrice - parseFloat(trade.avg_price)) * trade.quantity).toFixed(2);
+        if (onPnLChange) onPnLChange(parseFloat(newPnL));
+      }
         
-     
+        
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
@@ -108,6 +113,7 @@ const TradeCard = ({ trade,onOpenModal  }) => {
 
 {(() => {
       const pnl = ((parseFloat(lastPrice) - parseFloat(trade.avg_price)) * trade.quantity).toFixed(2);
+      if (onPnLChange) onPnLChange(parseFloat(pnl));
       
 
       const isPositive = pnl >= 0; // Check if profit or loss
