@@ -68,7 +68,7 @@ const ClosedOrders = ({ trades }) => {
                         }`}
                       >
                         {/* {lastPrice} */}
-                        <span className="ml-1">
+                        {/* <span className="ml-1">
                           {parseFloat(calculatePL(trade)) >= 0 ? (
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -100,11 +100,11 @@ const ClosedOrders = ({ trades }) => {
                               />
                             </svg>
                           )}
-                        </span>
+                        </span> */}
                       </div>
-                      <div className="text-sm font-medium text-gray-500">
+                      {/* <div className="text-sm font-medium text-gray-500">
                         {parseFloat(calculatePL(trade)) >= 0 ? "Profit" : "Loss"}
-                      </div>
+                      </div> */}
                     </div>
                   </div>
 
@@ -160,7 +160,7 @@ const ClosedOrders = ({ trades }) => {
                       <strong>Created On:</strong>{" "}
                       {new Date(trade.created_at).toLocaleString()}
                     </p>
-                    <button
+                    {/* <button
                       onClick={() => handleOpenModal(trade)}
                       className={`mt-4 px-4 py-2 rounded-md ${
                         trade.trade_type === "Buy"
@@ -169,7 +169,7 @@ const ClosedOrders = ({ trades }) => {
                       }`}
                     >
                       {trade.trade_type === "Buy" ? "Sell" : "Buy"}
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
