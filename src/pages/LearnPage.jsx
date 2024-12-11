@@ -195,7 +195,7 @@ const LearnPage = () => {
                 stocks={stocks}
                 results={results}
               />
-              {/* <TradingViewWidget data={chartData} /> */}
+              <TradingViewWidget data={chartData} />
             </div>
 
             <div>

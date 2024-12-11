@@ -12,15 +12,18 @@ import AlertTitle from "@mui/material/AlertTitle";
 const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [isDelivery, setIsDelivery] = useState(false);
 
-  const [quantity, setQuantity] = useState("1"); // Initial quantity
+
+  
+
+  const [quantity, setQuantity] = useState(1); 
 
   const handleIncrease = () => setQuantity((prev) => prev + 1);
   const handleDecrease = () => setQuantity((prev) => Math.max(1, prev - 1));
   const handleInputChange = (e) => {
     const value = e.target.value.replace(/^0+/, "");
     if (value === "") {
-      // If the input is cleared, don't show 0; default to 1
       setQuantity("");
     } else {
       const parsedValue = parseInt(value, 10);
@@ -31,28 +34,6 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   };
 
   console.log(selectedData, "the selected data is");
-
-  // const handleDecrease = () => {
-  //   setQuantity((prev) => {
-  //     if (selectedData?.lot_size === 1) {
-  //       // If the initial value is 1, decrease step-by-step but not below 1
-  //       return Math.max(prev - 1, 1);
-  //     }
-  //     // For other values, subtract the current value but not below the lot size
-  //     return Math.max(prev - selectedData?.lot_size, selectedData?.lot_size);
-  //   });
-  // };
-
-  // const handleIncrease = () => {
-  //   setQuantity((prev) => {
-  //     if (selectedData?.lot_size === 1) {
-  //       // If the initial value is 1, increase step-by-step
-  //       return prev + 1;
-  //     }
-  //     // For other values, add the current value
-  //     return Math.max(prev + selectedData?.lot_size, selectedData?.lot_size);
-  //   });
-  // };
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -213,27 +194,26 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       </div>
 
       <div className="space-y-2">
-      <div className="flex items-center  bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-        <span className="mr-4">Quantity:</span>
-        <MinusIcon
-          onClick={handleDecrease}
-          className="w-4 h-4 cursor-pointer"
-        />
-      <input
-        type="number"
-        value={quantity}
-        onChange={handleInputChange}
-        className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
-        min="0"
-      />
-      <div className="flex items-center space-x-2">
-      
-        <PlusIcon
-          onClick={handleIncrease}
-          className="w-4 h-4 cursor-pointer"
-        />
-      </div>
-    </div>
+        <div className="flex items-center  bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+          <span className="mr-4">Quantity:</span>
+          <MinusIcon
+            onClick={handleDecrease}
+            className="w-4 h-4 cursor-pointer"
+          />
+          <input
+            type="number"
+            value={quantity}
+            onChange={handleInputChange}
+            className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
+            min="0"
+          />
+          <div className="flex items-center space-x-2">
+            <PlusIcon
+              onClick={handleIncrease}
+              className="w-4 h-4 cursor-pointer"
+            />
+          </div>
+        </div>
 
         <div className="relative w-full">
           <label
@@ -245,7 +225,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
           <input
             type="number"
             id="lastPrice"
-            value={lastPrice}
+            value={lastPrice * quantity * (selectedData?.lot_size || 0)}
             className="w-full p-2 text-[#7D7D7D] mt-4 border bg-white rounded-md"
             readOnly
           />
@@ -261,6 +241,33 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
           </div>
         </div>
       </div>
+
+      <div className="flex justify-between items-center mb-4">
+  <span className="text-[#7D7D7D] text-xl font-bold">Order Type:</span>
+  <div className="flex space-x-2">
+    <button
+      className={`px-6 py-2 rounded-md ${
+        isDelivery
+          ? "bg-[#E8FCF1] text-green-500 border font-bold"
+          : "bg-transparent text-[#7D7D7D]"
+      }`}
+      onClick={() => setIsDelivery(true)}
+    >
+      Delivery
+    </button>
+    <button
+      className={`px-6 py-2 rounded-md ${
+        !isDelivery
+          ? "bg-[#E8FCF1] text-blue-500 border font-bold"
+          : "bg-transparent text-[#7D7D7D]"
+      }`}
+      onClick={() => setIsDelivery(false)}
+    >
+      Intraday
+    </button>
+  </div>
+</div>
+
 
       <div className="flex text-white text-bold space-x-2">
         <button

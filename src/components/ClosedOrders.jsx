@@ -1,187 +1,158 @@
-import React, { useState } from "react";
+import React from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import BuySellSub from "./BuySellSub";
-import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
+
 const ClosedOrders = ({ trades }) => {
   const closedTrades = trades.filter(
     (trade) => trade.trade_status === "completed"
   );
 
-  console.log(closedTrades,"This is the closeddddddddddd trade")
-  const { lastPrice } = useWebSocketTrade(); // Access live prices
-  const [expandedTradeIndex, setExpandedTradeIndex] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedTrade, setSelectedTrade] = useState(null);
- 
+  // Calculate total investment, current value, total P&L, and average P&L
+  const totalInvestment = closedTrades.reduce(
+    (sum, trade) => sum + trade.avg_price * trade.quantity,
+    0
+  );
 
-  const toggleExpand = (index) => {
-    setExpandedTradeIndex(index === expandedTradeIndex ? null : index);
+  const currentValue = closedTrades.reduce(
+    (sum, trade) => sum + trade.exit_price * trade.quantity,
+    0
+  );
+
+  const totalPnL = currentValue - totalInvestment;
+  const averagePnL = closedTrades.length > 0 ? totalPnL / closedTrades.length : 0;
+
+  const calculateProfit = (trade) => {
+    const profit = (trade.exit_price - trade.avg_price) * trade.quantity;
+    return profit;
   };
 
-  
-
-  const handleOpenModal = (trade) => {
-    setSelectedTrade(trade);
-    setModalOpen(true);
-  };
-
-
- 
-  const calculatePL = (trade) => {
-    const tradePrice = parseFloat(trade.avg_price);
-    const quantity = parseFloat(trade.quantity);
-    const currentPrice = 0; 
-
-    if (trade.trade_type === "Buy") {
-      return ((currentPrice - tradePrice) * quantity).toFixed(2);
-    } else if (trade.trade_type === "Sell") {
-      return ((tradePrice - currentPrice) * quantity).toFixed(2);
-    }
-    return "0.00";
+  const getProfitStatus = (profit) => {
+    return profit > 0 ? "Profit" : profit < 0 ? "Loss" : "Break-even";
   };
 
   return (
-    <>
-     
-        <div className="max-w-5xl mx-auto mt-8 p-4">
-          {closedTrades.length > 0  ? (
-            closedTrades.map((trade, index) => (
-              <div
-                key={trade.id || index}
-                className="bg-white rounded-lg mb-4 shadow transition-all duration-300"
-              >
-                <div
-                  onClick={() => toggleExpand(index)}
-                  className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 cursor-pointer"
-                >
-                  <div className="flex-1">
-                    <div className="text-lg font-semibold text-gray-700">
-                      {trade.display_name || "N/A"}
+    <div className="max-w-5xl mx-auto mt-8 p-4">
+      {/* Info Bar */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
+        <div className="flex flex-wrap justify-between items-center">
+          <div className="flex flex-col text-center">
+            <span className="text-sm font-medium text-gray-500">Total Trades</span>
+            <span className="text-lg font-semibold text-gray-800">
+              {closedTrades.length}
+            </span>
+          </div>
+          <div className="flex flex-col text-center">
+            <span className="text-sm font-medium text-gray-500">Total Investment</span>
+            <span className="text-lg font-semibold text-gray-800">
+              ₹{totalInvestment.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex flex-col text-center">
+            <span className="text-sm font-medium text-gray-500">Current Value</span>
+            <span className="text-lg font-semibold text-gray-800">
+              ₹{currentValue.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex flex-col text-center">
+            <span className="text-sm font-medium text-gray-500">Total P&L</span>
+            <span
+              className={`text-lg font-semibold ${
+                totalPnL > 0
+                  ? "text-green-600"
+                  : totalPnL < 0
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
+            >
+              ₹{totalPnL.toFixed(2)}
+            </span>
+          </div>
+          
+        </div>
+      </div>
+
+      {/* Closed Trades List */}
+      {closedTrades.length > 0 ? (
+        closedTrades.map((trade, index) => {
+          const profit = calculateProfit(trade);
+          const profitStatus = getProfitStatus(profit);
+
+          return (
+            <div
+              key={trade.id || index}
+              className="bg-white rounded-lg mb-2 shadow-md transition-all duration-300 hover:shadow-lg border border-gray-200"
+            >
+              {/* Top Section with Time and Type */}
+              <div className="flex items-center justify-between px-3 py-2">
+                <div className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                  {trade.execution_time || "N/A"} • {trade.type || "N/A"}
+                </div>
+                <EllipsisVerticalIcon className="h-5 w-5 text-gray-500" />
+              </div>
+
+              {/* Main Content */}
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-3 py-2 cursor-pointer">
+                <div className="flex-1">
+                  <div className="text-base font-semibold text-gray-800">
+                    {trade.display_name || "N/A"}
+                  </div>
+                  <div className="text-xs text-green-400 mt-1">Success</div>
+                </div>
+
+                <div className="flex flex-1 items-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full mt-2 md:mt-0">
+                    <div className="flex flex-col">
+                      <div className="text-xs font-medium text-gray-500">
+                        Trade Type
+                      </div>
+                      <div className="text-base font-semibold text-gray-800">
+                        {trade.trade_type}
+                      </div>
                     </div>
 
-                    <div className="text-left flex justify-start md:justify-normal items-center md:items-start md:flex-col">
+                    <div className="flex flex-col">
+                      <div className="text-xs font-medium text-gray-500">
+                        Avg. Price
+                      </div>
+                      <div className="text-base font-semibold text-gray-800">
+                        <span>{trade.avg_price.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="text-xs font-medium text-gray-500">
+                        Quantity
+                      </div>
+                      <div className="text-base font-semibold text-gray-800">
+                        {trade.quantity}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="text-xs font-medium text-gray-500">
+                        Profit / Loss
+                      </div>
                       <div
-                        className={`text-lg font-semibold flex items-center ${
-                          parseFloat(calculatePL(trade)) >= 0
+                        className={`text-base font-semibold ${
+                          profit > 0
                             ? "text-green-600"
-                            : "text-red-600"
+                            : profit < 0
+                            ? "text-red-600"
+                            : "text-gray-500"
                         }`}
                       >
-                        {/* {lastPrice} */}
-                        {/* <span className="ml-1">
-                          {parseFloat(calculatePL(trade)) >= 0 ? (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="w-4 h-4 mr-1"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 15l7-7 7 7"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="w-4 h-4 mr-1"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          )}
-                        </span> */}
-                      </div>
-                      {/* <div className="text-sm font-medium text-gray-500">
-                        {parseFloat(calculatePL(trade)) >= 0 ? "Profit" : "Loss"}
-                      </div> */}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-1 items-center">
-                    <div className="flex space-x-4 md:grid grid-cols-4 mt-4 md:mt-0 w-full">
-                      <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-500">
-                          Trade Type
-                        </div>
-                        <div className="text-lg font-semibold text-gray-800">
-                          {trade.trade_type}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-500">
-                          Avg. Price
-                        </div>
-                        <div className="text-lg font-semibold text-gray-800">
-                          <span>{trade.avg_price.toFixed(2)}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-500">
-                          Quantity
-                        </div>
-                        <div className="text-lg font-semibold text-gray-800">
-                          {trade.quantity}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-500">
-                          Invested
-                        </div>
-                        <div className="text-lg font-semibold text-gray-800">
-                          {trade.invested_coin.toFixed(2)}
-                        </div>
+                        {profit.toFixed(2)}
                       </div>
                     </div>
-                  </div>
-
-                  <EllipsisVerticalIcon className="hidden ml-4 lg:block h-6 w-6 text-gray-500" />
-                </div>
-                <div
-                  className={`overflow-hidden ${
-                    expandedTradeIndex === index ? "max-h-96" : "max-h-0"
-                  } transition-max-height duration-300`}
-                >
-                  <div className="p-4 bg-gray-100">
-                    <p className="text-gray-800 mt-2">
-                      <strong>Created On:</strong>{" "}
-                      {new Date(trade.created_at).toLocaleString()}
-                    </p>
-                    {/* <button
-                      onClick={() => handleOpenModal(trade)}
-                      className={`mt-4 px-4 py-2 rounded-md ${
-                        trade.trade_type === "Buy"
-                          ? "bg-red-500 text-white"
-                          : "bg-green-500 text-white"
-                      }`}
-                    >
-                      {trade.trade_type === "Buy" ? "Sell" : "Buy"}
-                    </button> */}
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No Closed Positions available.</p>
-          )}
-
-         
-        </div>
-      
-    </>
+            </div>
+          );
+        })
+      ) : (
+        <p className="text-center text-gray-500">No Closed Trades available.</p>
+      )}
+    </div>
   );
 };
 

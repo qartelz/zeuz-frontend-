@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import BuySellSub from "./BuySellSub";
 import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
 import TradeCard from "./TradeCard";
@@ -9,14 +9,24 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
 
    // Function to update PnL for a specific trade
    const handlePnLUpdate = (tradeId, newPnL) => {
-    setPnlMap((prev) => ({
-      ...prev,
-      [tradeId]: newPnL, // Update PnL for the specific trade
-    }));
+    setPnlMap((prev) => {
+      if (prev[tradeId] !== newPnL) {
+        return {
+          ...prev,
+          [tradeId]: newPnL,
+        };
+      }
+    
+    });
   };
+  const memoizedHandlePnLUpdate = useCallback(
+    (tradeId, newPnL) => handlePnLUpdate(tradeId, newPnL),
+    []
+  );
+  
 
-   // Calculate total PnL
-   const totalPnL = Object.values(pnlMap).reduce((sum, pnl) => sum + pnl, 0);
+  const totalPnL = Object.values(pnlMap).reduce((acc, pnl) => acc + pnl, 0).toFixed(2);
+
 
 
   const openTrades = trades.filter(
@@ -48,7 +58,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
         displayedTrades.map((trade) => (
           <TradeCard key={trade.id || trade.token_id}
            trade={trade}
-           onPnLChange={(newPnL) => handlePnLUpdate(trade.token_id, newPnL)} // Pass unique ID and PnL
+           onPnLChange={(newPnL) => memoizedHandlePnLUpdate(trade.token_id, newPnL)} 
            onOpenModal={handleOpenModal} />
         ))
       ) : (
@@ -79,7 +89,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
      <div className="p-4 mb-4 bg-white shadow-md rounded">
         <h2 className="text-lg font-semibold text-gray-800">Total PnL</h2>
         <p className={`text-lg font-semibold ${totalPnL >= 0 ? "text-green-500" : "text-red-500"}`}>
-          {totalPnL.toFixed(2)}
+          {totalPnL}
         </p>
       </div>
     
