@@ -1,7 +1,9 @@
-import React from "react";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import React, { useEffect, useRef, useState } from "react";
 
 const ClosedOrders = ({ trades }) => {
+  const [visibleTrades, setVisibleTrades] = useState(10); // Show 10 trades initially
+  const containerRef = useRef(null);
+
   const closedTrades = trades.filter(
     (trade) => trade.trade_status === "completed"
   );
@@ -18,36 +20,67 @@ const ClosedOrders = ({ trades }) => {
   );
 
   const totalPnL = currentValue - totalInvestment;
-  const averagePnL = closedTrades.length > 0 ? totalPnL / closedTrades.length : 0;
+ 
 
   const calculateProfit = (trade) => {
     const profit = (trade.exit_price - trade.avg_price) * trade.quantity;
     return profit;
   };
 
-  const getProfitStatus = (profit) => {
-    return profit > 0 ? "Profit" : profit < 0 ? "Loss" : "Break-even";
+  
+
+  const handleScroll = () => {
+    if (
+      containerRef.current &&
+      containerRef.current.scrollTop + containerRef.current.clientHeight >=
+        containerRef.current.scrollHeight
+    ) {
+      setVisibleTrades((prev) => prev + 10); // Load 10 more trades
+    }
   };
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto mt-8 p-4">
-      {/* Info Bar */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
+     
+      {closedTrades.length > 0 ? (
+
+        
+        <div className="overflow-x-auto">
+
+<div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">Total Trades</span>
+            <span className="text-sm font-medium text-gray-500">
+              Total Trades
+            </span>
             <span className="text-lg font-semibold text-gray-800">
               {closedTrades.length}
             </span>
           </div>
           <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">Total Investment</span>
+            <span className="text-sm font-medium text-gray-500">
+              Total Investment
+            </span>
             <span className="text-lg font-semibold text-gray-800">
               ₹{totalInvestment.toFixed(2)}
             </span>
           </div>
           <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">Current Value</span>
+            <span className="text-sm font-medium text-gray-500">
+              Current Value
+            </span>
             <span className="text-lg font-semibold text-gray-800">
               ₹{currentValue.toFixed(2)}
             </span>
@@ -66,89 +99,60 @@ const ClosedOrders = ({ trades }) => {
               ₹{totalPnL.toFixed(2)}
             </span>
           </div>
-          
         </div>
       </div>
+          
+          <div className="mb-4">
+            <div className="grid grid-cols-5 gap-4 bg-gray-100 px-4 py-2 font-semibold text-gray-800">
+              <div>Stock Name</div>
+              <div>Trade Type</div>
+              <div>Entry Price</div>
+              <div>Closing Price</div>
+              <div>Profit / Loss</div>
+            </div>
+          </div>
 
-      {/* Closed Trades List */}
-      {closedTrades.length > 0 ? (
-        closedTrades.map((trade, index) => {
-          const profit = calculateProfit(trade);
-          const profitStatus = getProfitStatus(profit);
+          {/* Scrollable Mapped Trades Data */}
+          <div
+            ref={containerRef}
+            className="max-h-96 overflow-y-auto border border-gray-300 rounded-lg"
+          >
+            {closedTrades.slice(0, visibleTrades).map((trade, index) => {
+              const profit = calculateProfit(trade); // Assuming you have a profit calculation logic
 
-          return (
-            <div
-              key={trade.id || index}
-              className="bg-white rounded-lg mb-2 shadow-md transition-all duration-300 hover:shadow-lg border border-gray-200"
-            >
-              {/* Top Section with Time and Type */}
-              <div className="flex items-center justify-between px-3 py-2">
-                <div className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
-                  {trade.execution_time || "N/A"} • {trade.type || "N/A"}
-                </div>
-                <EllipsisVerticalIcon className="h-5 w-5 text-gray-500" />
-              </div>
-
-              {/* Main Content */}
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-3 py-2 cursor-pointer">
-                <div className="flex-1">
+              return (
+                <div
+                  key={trade.id || index}
+                  className="grid grid-cols-5 gap-4 bg-white px-4 py-2 border-b border-gray-200"
+                >
                   <div className="text-base font-semibold text-gray-800">
                     {trade.display_name || "N/A"}
                   </div>
-                  <div className="text-xs text-green-400 mt-1">Success</div>
-                </div>
-
-                <div className="flex flex-1 items-center">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full mt-2 md:mt-0">
-                    <div className="flex flex-col">
-                      <div className="text-xs font-medium text-gray-500">
-                        Trade Type
-                      </div>
-                      <div className="text-base font-semibold text-gray-800">
-                        {trade.trade_type}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <div className="text-xs font-medium text-gray-500">
-                        Avg. Price
-                      </div>
-                      <div className="text-base font-semibold text-gray-800">
-                        <span>{trade.avg_price.toFixed(2)}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <div className="text-xs font-medium text-gray-500">
-                        Quantity
-                      </div>
-                      <div className="text-base font-semibold text-gray-800">
-                        {trade.quantity}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <div className="text-xs font-medium text-gray-500">
-                        Profit / Loss
-                      </div>
-                      <div
-                        className={`text-base font-semibold ${
-                          profit > 0
-                            ? "text-green-600"
-                            : profit < 0
-                            ? "text-red-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {profit.toFixed(2)}
-                      </div>
-                    </div>
+                  <div className="text-base text-gray-800">
+                    {trade.trade_type || "N/A"}
+                  </div>
+                  <div className="text-base text-gray-800">
+                    {trade.avg_price.toFixed(2)}
+                  </div>
+                  <div className="text-base text-gray-800">
+                    {trade.quantity}
+                  </div>
+                  <div
+                    className={`text-base font-semibold ${
+                      profit > 0
+                        ? "text-green-600"
+                        : profit < 0
+                        ? "text-red-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {profit.toFixed(2)}
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })
+              );
+            })}
+          </div>
+        </div>
       ) : (
         <p className="text-center text-gray-500">No Closed Trades available.</p>
       )}

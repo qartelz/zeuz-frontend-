@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom'
+
 import {
   ChevronDownIcon,
   MinusIcon,
@@ -10,6 +12,8 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 
 const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
+  const navigate = useNavigate();
+
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [isDelivery, setIsDelivery] = useState(false);
@@ -127,12 +131,14 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log("Trade created successfully:", result);
-        // console.log(result,"reswwwwwwwwwwwwwwwwwwponse is vukbbkigyuk")
-        // alert(result.message);
+       
+       
         setAlertMessage(result.message);
         setShowAlert(true);
         setTimeout(() => setShowAlert(false), 3000);
+        setTimeout(() => {
+          navigate('/portfolio');
+      }, 4000);
       } else {
         console.error("Error creating trade:", response.statusText);
         alert("Failed to create trade. Please try again.");
