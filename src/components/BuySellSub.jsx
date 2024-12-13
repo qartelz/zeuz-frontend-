@@ -14,6 +14,7 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
 
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [isDelivery, setIsDelivery] = useState(false);
 
   const { lastPrice } = useWebSocketTrade();
 
@@ -22,6 +23,23 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
+
+  
+  const [quantity, setQuantity] = useState(1); 
+
+  const handleIncrease = () => setQuantity((prev) => prev + 1);
+  const handleDecrease = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const handleInputChange = (e) => {
+    const value = e.target.value.replace(/^0+/, "");
+    if (value === "") {
+      setQuantity("");
+    } else {
+      const parsedValue = parseInt(value, 10);
+      if (!isNaN(parsedValue)) {
+        setQuantity(parsedValue);
+      }
+    }
+  };
   
 
 
@@ -30,7 +48,7 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
 
   const [isBuy, setIsBuy] = useState(initialIsBuy);
 
-  const [quantity, setQuantity] = useState(selectedData?.lot_size || 0);
+  
   const [beetleCoins, setBeetleCoins] = useState(null);
 
 
@@ -81,7 +99,7 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       invested_coin: (lastPrice || 0) * quantity,
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
-      "margin_required": 4159.25,
+      margin_required: 4159.25,
     };
     if (lastPrice <= 0) {
       alert("Cannot execute trade: Invalid price.");
@@ -185,17 +203,23 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-          <span>Quantity</span>
+      <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+          <span className="mr-4">Quantity:</span>
+          <MinusIcon
+            onClick={handleDecrease}
+            className="w-4 h-4 cursor-pointer"
+          />
+          <input
+            type="number"
+            value={quantity}
+            onChange={handleInputChange}
+            className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
+            min="0"
+          />
           <div className="flex items-center space-x-2">
-            <MinusIcon
-              className="w-4 h-4 cursor-pointer"
-              onClick={() => setQuantity((q) => Math.max(0, Math.floor(q / 2)))}
-            />
-            <span>{quantity}</span>
             <PlusIcon
+              onClick={handleIncrease}
               className="w-4 h-4 cursor-pointer"
-              onClick={() => setQuantity((q) => q * 2)}
             />
           </div>
         </div>
@@ -211,7 +235,7 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
           <input
             type="number"
             id="lastPrice"
-            value={lastPrice}
+            value={lastPrice * quantity * (selectedData?.lot_size || 0)}
             className="w-full p-2 text-[#7D7D7D] mt-4 border bg-white rounded-md"
             readOnly
           />

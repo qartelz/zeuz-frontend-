@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom'
-
+import { useNavigate } from "react-router-dom";
 import {
   ChevronDownIcon,
   MinusIcon,
@@ -9,7 +8,7 @@ import {
 import BeetleBalance from "./BeetleBalance";
 import { useWebSocketStock } from "./WebSocketStock";
 import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
+
 
 const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   const navigate = useNavigate();
@@ -18,13 +17,17 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [isDelivery, setIsDelivery] = useState(false);
 
+  const [quantity, setQuantity] = useState(selectedData.lot_size);
+  const handleIncrease = () => {
+    const lotSize = selectedData?.lot_size || 1;
+    setQuantity((prev) => prev + lotSize);
+  };
 
-  
+  const handleDecrease = () => {
+    const lotSize = selectedData?.lot_size || 1;
+    setQuantity((prev) => Math.max(lotSize, prev - lotSize));
+  };
 
-  const [quantity, setQuantity] = useState(1); 
-
-  const handleIncrease = () => setQuantity((prev) => prev + 1);
-  const handleDecrease = () => setQuantity((prev) => Math.max(1, prev - 1));
   const handleInputChange = (e) => {
     const value = e.target.value.replace(/^0+/, "");
     if (value === "") {
@@ -51,9 +54,8 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
 
   const [isBuy, setIsBuy] = useState(initialIsBuy);
   console.log(initialIsBuy);
-  // const [quantity, setQuantity] = useState(selectedData?.lot_size || 0);
+
   const [beetleCoins, setBeetleCoins] = useState(null);
-  // console.log(selectedData, "this is the selected");
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -131,14 +133,13 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
 
       if (response.ok) {
         const result = await response.json();
-       
-       
+
         setAlertMessage(result.message);
         setShowAlert(true);
         setTimeout(() => setShowAlert(false), 3000);
         setTimeout(() => {
-          navigate('/portfolio');
-      }, 4000);
+          navigate("/portfolio");
+        }, 4000);
       } else {
         console.error("Error creating trade:", response.statusText);
         alert("Failed to create trade. Please try again.");
@@ -248,32 +249,31 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-  <span className="text-[#7D7D7D] text-xl font-bold">Order Type:</span>
-  <div className="flex space-x-2">
-    <button
-      className={`px-6 py-2 rounded-md ${
-        isDelivery
-          ? "bg-[#E8FCF1] text-green-500 border font-bold"
-          : "bg-transparent text-[#7D7D7D]"
-      }`}
-      onClick={() => setIsDelivery(true)}
-    >
-      Delivery
-    </button>
-    <button
-      className={`px-6 py-2 rounded-md ${
-        !isDelivery
-          ? "bg-[#E8FCF1] text-blue-500 border font-bold"
-          : "bg-transparent text-[#7D7D7D]"
-      }`}
-      onClick={() => setIsDelivery(false)}
-    >
-      Intraday
-    </button>
-  </div>
-</div>
-
+      <div className="flex justify-between items-center mb-4 border rounded-md p-2  bg-white">
+        <span className="text-[#7D7D7D] text-md font-bold">Product:</span>
+        <div className="flex space-x-2">
+          <button
+            className={`px-6 py-2 rounded-md ${
+              isDelivery
+                ? "bg-[#E8FCF1] text-green-500 border font-bold"
+                : "bg-transparent text-[#7D7D7D]"
+            }`}
+            onClick={() => setIsDelivery(true)}
+          >
+            Delivery
+          </button>
+          <button
+            className={`px-6 py-2 rounded-md ${
+              !isDelivery
+                ? "bg-[#E8FCF1] text-blue-500 border font-bold"
+                : "bg-transparent text-[#7D7D7D]"
+            }`}
+            onClick={() => setIsDelivery(false)}
+          >
+            Intraday
+          </button>
+        </div>
+      </div>
 
       <div className="flex text-white text-bold space-x-2">
         <button

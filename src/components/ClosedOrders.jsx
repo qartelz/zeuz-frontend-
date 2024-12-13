@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 const ClosedOrders = ({ trades }) => {
-  const [visibleTrades, setVisibleTrades] = useState(10); // Show 10 trades initially
+  const [visibleTrades, setVisibleTrades] = useState(100);
   const containerRef = useRef(null);
 
   const closedTrades = trades.filter(

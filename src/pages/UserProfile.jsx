@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BagSvg from "../assets/svg/BagSvg";
 import Navbar from "../components/Navbar";
 import dayjs from "dayjs";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { Edit, Check } from "lucide-react";
 
 export default function UserProfile() {
 
@@ -75,6 +76,48 @@ export default function UserProfile() {
     </div>
   );
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [userParagraph, setUserParagraph] = useState(
+    "A brief paragraph about you, detailing interests, background, or anything else."
+  );
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+  };
+
+  const contentEditableRef = useRef(null);
+
+  const handleInputChange = (e) => {
+    const updatedParagraph = e.target.textContent;
+
+    // Check if the paragraph length exceeds 500 characters
+    if (updatedParagraph.length <= 500) {
+      setUserParagraph(updatedParagraph); // Update paragraph if under 500 characters
+    } else {
+      // Optionally, show an alert or message indicating the limit
+      alert("The paragraph cannot exceed 500 characters.");
+      e.target.textContent = updatedParagraph.substring(0, 500);
+      setUserParagraph(updatedParagraph.substring(0, 500));
+    }
+
+
+    
+
+    const element = contentEditableRef.current;
+    const range = document.createRange();
+    const selection = window.getSelection();
+
+    range.selectNodeContents(element);
+    range.collapse(false); // Move the caret to the end
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+  
+
   return (
     <main>
       <Navbar />
@@ -99,13 +142,36 @@ export default function UserProfile() {
 
           {/* User Details */}
           <h2 className="text-2xl font-semibold mb-2">{name || "User Name"}</h2>
-          <p className="text-gray-600 mb-4">Location</p>
-          <p className="text-center text-gray-500 max-w-md mb-8">
-            A brief paragraph about the user, detailing interests, background,
-            or anything else.
-          </p>
+        
+          <div className="flex items-center justify-between max-w-md mb-8">
+        {/* Editable Paragraph */}
+        <div
+          contentEditable={isEditing}
+          ref={contentEditableRef}
+          suppressContentEditableWarning={true}
+          className={`text-center text-gray-500 ${
+            isEditing
+            ? "border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#026E78]  w-96 overflow-y-auto"
+            : ""
+        }`}
+          
+          onInput={handleInputChange}
+        >
+          {userParagraph}
+          
+        </div>
+
+        {/* Edit or Save Button */}
+        <button
+          className="ml-4 text-[#026E78] hover:text-[#014B52] transition"
+          onClick={isEditing ? handleSave : handleEditToggle}
+        >
+          {isEditing ? <Check size={24} /> : <Edit size={24} />}
+        </button>
+      </div>
           {/* Toggle Button for Portfolio/Profit-Loss */}
-          <div className="flex items-center border rounded-full px-2 py-1 mb-8">
+        <div className="flex items-center border rounded-full px-2 py-1 mb-8">
+
             <button
               className={`px-4 py-2 rounded-full ${
                 activeTab === "Portfolio"
@@ -114,6 +180,12 @@ export default function UserProfile() {
               }`}
               onClick={() => setActiveTab("Portfolio")}
             >
+
+          
+
+
+
+
               Portfolio
             </button>
             <button
@@ -128,15 +200,9 @@ export default function UserProfile() {
             </button>
           </div>
 
-          {/* Content for Portfolio Tab */}
           {activeTab === "Portfolio" && (
             <div className="w-full flex flex-col items-center">
-              {/* Total Portfolio Value */}
-              {/* <InfoBox
-                title="Total"
-                subtitle="Portfolio Value"
-                amount="12,345.67"
-              /> */}
+             
 
               <div className="flex flex-col md:grid grid-cols-3 gap-4">
               <InfoBox

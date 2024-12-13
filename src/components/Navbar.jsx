@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/authSlice';
 
 
+
 export default function Navbar() {
   const { name} = useSelector((state) => state.auth);
 

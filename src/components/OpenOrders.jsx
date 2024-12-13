@@ -2,8 +2,10 @@ import React, { useCallback, useState, useMemo } from "react";
 import BuySellSub from "./BuySellSub";
 import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
 import TradeCard from "./TradeCard";
+import { useLocation } from 'react-router-dom';
 
 const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
+  const location = useLocation();
   const [pnlMap, setPnlMap] = useState({}); // Mapping of trade IDs to PnL values
 
   // Memoized function to update PnL for a specific trade
@@ -45,7 +47,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
       <div className="max-w-5xl mx-auto mt-8 p-4">
         {displayedTrades.length > 0 ? (
           <>
-          {displayedTrades.length > 4 && 
+          {location.pathname === "/portfolio"  && 
             <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
               <div className="flex flex-wrap justify-between items-center">
                 <div className="flex flex-col text-center">

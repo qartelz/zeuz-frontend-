@@ -1,13 +1,33 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { ChevronUp, ChevronDown } from "lucide-react";
 const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
   const [lastPrice, setLastPrice] = useState(trade.avg_price || "0.00");
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastPrice((prevPrice) => {
+        let newPrice = prevPrice + (Math.random() * 3); // Increment by a random number between 0 and 3
+        if (newPrice > 295) newPrice = 285 + (Math.random() * 3); // Reset to 285-295 range
+        return parseFloat(newPrice.toFixed(2)); // Limit to two decimal places
+      });
+    }, 1000); // Update every second
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+
+
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   const calculatePnL = useCallback(() => {
     const pnl = parseFloat(lastPrice) - parseFloat(trade.avg_price);
     return pnl.toFixed(2);
   }, [lastPrice, trade.avg_price]);
+
+
 
   useEffect(() => {
     // Notify the parent of the updated PnL
@@ -36,7 +56,7 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
         uid: "KE0070",
         actid: "KE0070",
         susertoken:
-          "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzMzOTgwMDI1LCJleHAiOjE3MzQwNDk4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzMzOTgwMDI1ODg0LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.jED5rq7iV1XLdta8pH_VQN7ChaV6Fh453U4J7LheZPA", // Replace with a dynamic or environment-based token
+          "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MDgxNjU1LCJleHAiOjE3MzQxMzYyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MDgxNjU1Nzc4LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.1mb1kLrdERckEdEs-GJ4EK7T6RCnjevaAYBuFIj0KBA", // Replace with a dynamic or environment-based token
         source: "API",
       };
       ws.send(JSON.stringify(initialData));
@@ -56,7 +76,9 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
       console.log(`Message for ${trade.display_name}:`, event.data);
       try {
         const data = JSON.parse(event.data);
-        if (data.lp) setLastPrice(data.lp);
+        // if (data.lp) setLastPrice(data.lp);
+
+
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
@@ -92,7 +114,7 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
               <div className="text-lg font-semibold flex items-center">
                 {(() => {
                   const pnl = (
-                    parseFloat(lastPrice) - parseFloat(trade.avg_price)
+                    (parseFloat(lastPrice) - parseFloat(trade.avg_price)) * parseFloat(trade.quantity)
                   ).toFixed(2);
                   const isPositive = pnl >= 0; 
                   return (
@@ -105,36 +127,10 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
                         ₹{pnl}
                       </span>
                       <span className="ml-1">
-                        {lastPrice >= 0 ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-4 h-4 mr-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M5 15l7-7 7 7"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-4 h-4 mr-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
+                        {pnl >= 0 ? (
+                          <ChevronUp className="w-4 h-4 mr-1 text-green-500" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 mr-1 text-red-500" />
                         )}
                       </span>
                     </>
@@ -153,16 +149,17 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
             <div className="flex space-x-4 md:grid grid-cols-4 mt-4 md:mt-0 w-full">
               <div className="flex flex-col">
                 <div className="text-sm font-medium text-gray-500">
-                  Trade Type
+                  Trade Type 
                 </div>
                 <div className="text-lg font-semibold text-gray-800">
                   {trade.trade_type}
+                 
                 </div>
               </div>
 
               <div className="flex flex-col">
                 <div className="text-sm font-medium text-gray-500">
-                  Entry Price
+                  Avg. Price
                 </div>
                 <div className="text-lg font-semibold text-gray-800">
                   <span>{trade.avg_price.toFixed(2)}</span>
