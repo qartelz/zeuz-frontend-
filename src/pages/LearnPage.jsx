@@ -132,6 +132,7 @@ const LearnPage = () => {
         <ChevronRightIcon className="h-4 w-4" />
         <span className="font-bold text-[#026E78]">{heading}</span>
       </div>
+      
 
       <div className="flex flex-col justify-center  items-center">
         {!selectedData && <BeetleBalance />}

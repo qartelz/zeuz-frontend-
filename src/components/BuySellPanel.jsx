@@ -9,13 +9,12 @@ import BeetleBalance from "./BeetleBalance";
 import { useWebSocketStock } from "./WebSocketStock";
 import Alert from "@mui/material/Alert";
 
-
 const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   const navigate = useNavigate();
 
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [isDelivery, setIsDelivery] = useState(false);
+  const [isDelivery, setIsDelivery] = useState(true);
 
   const [quantity, setQuantity] = useState(selectedData.lot_size);
   const handleIncrease = () => {
@@ -50,9 +49,14 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   const { lastPrice } = useWebSocketStock();
 
   const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
-  const [isOrderDropdownOpen, setIsOrderDropdownOpen] = useState(false);
 
-  const [isBuy, setIsBuy] = useState(initialIsBuy);
+  
+  const [limitPrice, setLimitPrice] = useState(""); 
+  
+
+  const [isBuy, setIsBuy] = useState(null);
+  const [isSell, setIsSell] = useState(null);
+
   console.log(initialIsBuy);
 
   const [beetleCoins, setBeetleCoins] = useState(null);
@@ -150,148 +154,257 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
     }
   };
 
+  const [margin, setMargin] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrderMargin = async () => {
+      try {
+        const response = await fetch(
+          "https://orca-uatapi.enrichmoney.in/order-api/v1/order/margin",
+          {
+            method: "POST",
+            headers: {
+              Authorization:
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MTcyNjMxLCJleHAiOjE3MzQyMjI2MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MTcyNjMxNzI0LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.K2v9XnfeFnqPt0mNXvqUDlGpS6B5dap38IzuQt7vVfU",
+              "user-Id": "KE0070",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: "KE0070",
+              exchange: selectedData.exchange,
+              trading_symbol: selectedData.trading_symbol,
+              price: lastPrice,
+              quantity: quantity,
+              price_type: "LMT",
+              product_type: "I",
+              transaction_type: "B",
+              trigger_price: "",
+              book_loss_price: "",
+              book_profit_price: "",
+              original_price: "",
+              original_quantity: "",
+              original_trigger_price: "",
+              oms_partner_order_no: "",
+              secondary_order_no: "",
+              oms_partner_source: "kambala",
+            }),
+          }
+        );
+        const data = await response.json();
+        if (data.success) {
+          setMargin(data.data.order_margin);
+        } else {
+          setError("Failed to fetch order margin");
+        }
+      } catch (err) {
+        setError("Error fetching data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderMargin();
+  }, [lastPrice, quantity]);
+
   return (
-    <div className="px-4  bg-transparent rounded-md space-y-4 relative pt-12">
+    <div className="px-4 bg-transparent rounded-md space-y-4 relative pt-12">
       {showAlert && (
-        <div className="absolute top-0 left-0 w-full z-50 ">
+        <div className="absolute top-0 left-0 w-full z-50">
           <Alert variant="filled" severity="success">
             {alertMessage}
           </Alert>
         </div>
       )}
 
-      <div className="flex items-center space-x-4 whitespace-nowrap">
-        <BeetleBalance />
+      {/* Blurred Background Wrapper */}
+      <div className=" p-4 bg-white/70 backdrop-blur-md rounded-xl space-y-4 shadow-md">
+        <div className="flex items-center space-x-4 whitespace-nowrap">
+          <BeetleBalance />
 
-        {beetleCoins && (
-          <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-            <span>Beetle Coins: {beetleCoins.amount}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white text-[#7D7D7D] font-bold border shadow-sm p-2 rounded-md">
-        <span>{selectedData?.display_name || "No stock selected"}</span>
-      </div>
-
-      <div className="flex items-center justify-between space-x-2">
-        <span className="text-[#7D7D7D] text-xl font-bold">I want to:</span>
-        <div className="flex space-x-2">
-          <button
-            className={`px-8 py-2 rounded-md ${
-              isBuy
-                ? "bg-[#E8FCF1] text-green-500 border font-bold"
-                : "bg-transparent text-[#7D7D7D]"
-            }`}
-            onClick={() => setIsBuy(true)}
-          >
-            Buy
-          </button>
-          <button
-            className={`px-8 py-2 rounded-md ${
-              !isBuy
-                ? "bg-[#E8FCF1] text-red-500 border font-bold"
-                : "bg-transparent text-[#7D7D7D]"
-            }`}
-            onClick={() => setIsBuy(false)}
-          >
-            Sell
-          </button>
+          {beetleCoins && (
+            <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+              <span>Beetle Coins: {beetleCoins.amount}</span>
+            </div>
+          )}
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center  bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-          <span className="mr-4">Quantity:</span>
-          <MinusIcon
-            onClick={handleDecrease}
-            className="w-4 h-4 cursor-pointer"
-          />
-          <input
-            type="number"
-            value={quantity}
-            onChange={handleInputChange}
-            className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
-            min="0"
-          />
-          <div className="flex items-center space-x-2">
-            <PlusIcon
-              onClick={handleIncrease}
+        {/* Stock Display */}
+        <div className="bg-white text-black font-bold text-xl shadow-sm p-2 rounded-md">
+          <span>{selectedData?.display_name || "No stock selected"}</span>
+        </div>
+
+        {/* I Want To Section */}
+
+        {(isBuy == null || isSell == null) ? (
+
+        <div className=" items-center justify-between space-x-2">
+          <span className="text-2xl font-bold">{lastPrice}</span>
+          <span className="text-sm text-[#7D7D7D]">Last Traded Price</span>
+
+          
+          
+          <div className="flex w-full space-x-2 justify-around  mt-5">
+         
+            <button
+              className="px-8 w-full py-2 rounded-md text-white bg-green-500 border font-bold"
+              onClick={() => {
+                setIsBuy(true);
+                setIsSell(false); 
+              }}
+            >
+              Buy
+            </button>
+
+            <button
+              className="px-8 py-2 w-full rounded-md  text-white bg-red-500 border font-bold "
+            
+              onClick={() => {
+                setIsBuy(false);
+                setIsSell(true);
+              }}
+            >
+              Sell
+            </button>
+          </div>
+        </div>
+
+) : (
+
+        <div>
+
+        {/* Delivery / Intraday Toggle */}
+        <div className="flex w-full justify-between items-center mb-4 border p-2 rounded-md bg-white">
+          <div className="flex w-full">
+            <button
+              className={`w-1/2 px-6 py-2 rounded-l-md ${
+                isDelivery
+                  ? "bg-[#E8FCF1] text-green-500 border font-bold"
+                  : "bg-transparent text-[#7D7D7D] border"
+              }`}
+              onClick={() => setIsDelivery(true)}
+            >
+              Delivery
+            </button>
+            <button
+              className={`w-1/2 px-6 py-2 rounded-r-md ${
+                !isDelivery
+                  ? "bg-[#E8FCF1] text-blue-500 border font-bold"
+                  : "bg-transparent text-[#7D7D7D] border"
+              }`}
+              onClick={() => setIsDelivery(false)}
+            >
+              Intraday
+            </button>
+          </div>
+        </div>
+
+        {/* Quantity Section */}
+        <div className="space-y-2">
+          <div className="flex items-center bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
+            <span className="mr-4">Quantity:</span>
+            <MinusIcon
+              onClick={handleDecrease}
               className="w-4 h-4 cursor-pointer"
             />
+            <input
+              type="number"
+              value={quantity}
+              onChange={handleInputChange}
+              className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
+              min="0"
+            />
+            <div className="flex items-center space-x-2">
+              <PlusIcon
+                onClick={handleIncrease}
+                className="w-4 h-4 cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <div className="relative border rounded-md p-3 bg-white w-64 h-[100px]">
+            {/* Horizontal Toggle Buttons */}
+            <div className="flex items-center gap-2">
+              {["Market Order", "Limit Order"].map((orderType) => (
+                <button
+                  key={orderType}
+                  className={`flex-1 p-2 text-sm font-medium rounded-md ${
+                    selectedOrderType === orderType
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => {
+                    setSelectedOrderType(orderType);
+                    if (orderType === "Market Order") setLimitPrice("");
+                  }}
+                >
+                  {orderType}
+                </button>
+              ))}
+            </div>
+
+            {/* Conditional Input or Label */}
+            <div className="mt-3">
+              {selectedOrderType === "Market Order" ? (
+                <span className="text-sm w-1/2 font-medium text-black border rounded-md px-2 py-1">
+                  At Market
+                </span>
+              ) : (
+                <input
+                  type="number"
+                  className="w-1/2 text-sm font-medium text-black border rounded-md px-2 py-1"
+                  placeholder="Limit Price"
+                  value={limitPrice}
+                  onChange={(e) => setLimitPrice(e.target.value)} // Update limit price
+                />
+              )}
+            </div>
           </div>
         </div>
 
+        {/* Required Price */}
         <div className="relative w-full">
           <label
             htmlFor="lastPrice"
             className="absolute mt-4 font-semibold left-2 rounded-md top-[-10px] text-xs text-[#7D7D7D] bg-white px-1"
           >
-            Price. (BTLS)
+            Required Price. (BTLS)
           </label>
           <input
             type="number"
             id="lastPrice"
-            value={lastPrice * quantity * (selectedData?.lot_size || 0)}
+            value={margin}
             className="w-full p-2 text-[#7D7D7D] mt-4 border bg-white rounded-md"
             readOnly
           />
         </div>
 
-        <div className="relative">
-          <div
-            className="flex items-center justify-between bg-white text-[#7D7D7D] border p-2 rounded-md cursor-pointer"
-            onClick={() => setIsOrderDropdownOpen(!isOrderDropdownOpen)}
-          >
-            <span>{selectedOrderType}</span>
-            <ChevronDownIcon className="w-4 h-4" />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center mb-4 border rounded-md p-2  bg-white">
-        <span className="text-[#7D7D7D] text-md font-bold">Product:</span>
-        <div className="flex space-x-2">
+        {/* Action Buttons */}
+        <div className="flex text-white text-bold mt-2 space-x-2">
           <button
-            className={`px-6 py-2 rounded-md ${
-              isDelivery
-                ? "bg-[#E8FCF1] text-green-500 border font-bold"
-                : "bg-transparent text-[#7D7D7D]"
-            }`}
-            onClick={() => setIsDelivery(true)}
+            className={`w-full px-2 py-2 rounded-md ${
+              isBuy ? "bg-green-800" : "bg-[#D83232]"
+            } text-white`}
+            onClick={handleTrade}
           >
-            Delivery
+            {isBuy ? "Buy" : "Sell"}
           </button>
+
           <button
-            className={`px-6 py-2 rounded-md ${
-              !isDelivery
-                ? "bg-[#E8FCF1] text-blue-500 border font-bold"
-                : "bg-transparent text-[#7D7D7D]"
-            }`}
-            onClick={() => setIsDelivery(false)}
+            className="w-full bg-gray-500 py-2 rounded-md"
+            onClick={() => {
+              setIsBuy(null);
+              setIsSell(null);
+            }}
           >
-            Intraday
+            Cancel
           </button>
         </div>
+        </div>
+        )}
       </div>
-
-      <div className="flex text-white text-bold space-x-2">
-        <button
-          className={`w-full px-2 py-2 rounded-md ${
-            isBuy ? "bg-green-800" : "bg-[#D83232]"
-          } text-white`}
-          onClick={handleTrade}
-        >
-          {isBuy ? "Buy" : "Sell"}
-        </button>
-
-        <button
-          className="w-full bg-gray-500 py-2 rounded-md"
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-      </div>
+      
     </div>
   );
 };
