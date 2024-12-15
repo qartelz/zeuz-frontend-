@@ -159,7 +159,7 @@ const LearnPage = () => {
                 <p className="text-xl font-semibold mb-4">
                   {results.length} results found for "{searchQuery}"
                 </p>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {results.map((stock, index) => (
                     <div
                       key={index}
@@ -189,14 +189,14 @@ const LearnPage = () => {
 
       {selectedData && !searchQuery && heading !== "Options Trading" && (
         // <WebSocketStock selectedData={selectedData}>
-          <div className="grid grid-cols-1 md:grid-cols-[70%_25%] gap-6 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-[70%_25%] gap-6 p-0 mt-0 md:mt-4 md:p-6">
             <div >
               <StockInfo
                 selectedData={selectedData}
                 stocks={stocks}
                 results={results}
               />
-              {/* <TradingViewWidget data={chartData} /> */}
+              <TradingViewWidget data={chartData} />
             </div>
 
             <div>

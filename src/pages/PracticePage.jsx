@@ -44,9 +44,9 @@ const PracticePage = () => {
     <div className="h-screen">
       <Navbar />
       <div className="flex flex-row h-screen items-center justify-between">
-        <div className="flex flex-col justify-end space-y-4 w-1/2 p-8">
+        <div className="flex flex-col justify-end space-y-4 w-full md:w-1/2 p-4 md:p-8">
           <h1 className="text-4xl font-bold">Start a New Trade</h1>
-          <h2 className="text-xl text-gray-700">
+          <h2 className="text-lg md:text-xl text-gray-700">
             Choose a trade type to learn and practice.
           </h2>
 
@@ -104,13 +104,13 @@ const PracticePage = () => {
       {isModalOpen && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
-          onClick={closeModal} // Close the modal when clicking outside
+          onClick={closeModal} 
         >
           <div
             className="bg-white rounded-lg w-[90%] max-w-[400px] h-auto p-4 flex flex-col relative"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+            onClick={(e) => e.stopPropagation()} 
           >
-            {/* Close Button */}
+          
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
               onClick={closeModal}
@@ -118,14 +118,14 @@ const PracticePage = () => {
               &times;
             </button>
 
-            {/* Content Section */}
+           
             <div className="flex flex-col items-center justify-center text-center flex-grow mt-4">
               <h2 className="text-xl font-bold mb-2">{modalContent.title}</h2>
               <p className="text-gray-700 mb-4">{modalContent.content}</p>
               <p className="text-gray-700 mb-4">{modalContent.contentLast}</p>
             </div>
 
-            {/* Button */}
+           
             <button
               className={`px-4 py-2 text-white rounded-lg ${modalContent.buttonColor} mt-4`}
               onClick={handleButtonClick} // Navigate on button click

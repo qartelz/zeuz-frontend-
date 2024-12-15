@@ -17,6 +17,8 @@ const useWebSocketManager = (touchline) => {
     wsRef.current = ws;
     
     const touchlineInterval = 5000; // 5 seconds
+    const heartbeatInterval = 60000; // 60 seconds
+    let heartbeatTimer;
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -30,6 +32,12 @@ const useWebSocketManager = (touchline) => {
         source: "API",
       };
       ws.send(JSON.stringify(initialData));
+
+      heartbeatTimer = setInterval(() => {
+        const heartbeatMessage = { t: "h" };
+        console.log("Sending heartbeat message:", heartbeatMessage);
+        ws.send(JSON.stringify(heartbeatMessage));
+      }, heartbeatInterval);
 
       touchlineTimerRef.current = setInterval(() => {
         ws.send(
@@ -63,8 +71,10 @@ const useWebSocketManager = (touchline) => {
     };
 
     return () => {
-      // Cleanup function to clear interval and close WebSocket
+     
       clearInterval(touchlineTimerRef.current);
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+    
       ws.close();
     };
   }, [touchline]);

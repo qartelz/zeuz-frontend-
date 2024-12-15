@@ -12,6 +12,7 @@ import useWebSocketManager from "../utils/WebSocketManager";
 const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
   const { lastPrice } = useWebSocketManager(touchline);
+  
   console.log(lastPrice,"the last pricccce")
   const navigate = useNavigate();
 
@@ -122,6 +123,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
       margin_required: 4159.25,
+      // product_type: isDelivery ? "M" : "I",
     };
 
     const apiUrl =

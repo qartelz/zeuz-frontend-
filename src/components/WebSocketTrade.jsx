@@ -64,7 +64,7 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
         if (data.pc) setPercentChange(data.pc);
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
-        // Optionally, handle non-JSON messages here
+       
       }
     };
 

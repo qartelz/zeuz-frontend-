@@ -135,7 +135,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
         )}
 
         {modalOpen && selectedTrade && (
-          <WebSocketTrade selectedTrade={selectedTrade}>
+          // <WebSocketTrade selectedTrade={selectedTrade}>
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="bg-white p-6 rounded-md shadow-lg">
                 <BuySellSub
@@ -147,10 +147,11 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
                   initialIsBuy={selectedTrade.trade_type === "Sell"}
                   setModalOpen={setModalOpen}
                   onTradeSuccess={refreshTrades}
+                  productType={selectedTrade.product_type}
                 />
               </div>
             </div>
-          </WebSocketTrade>
+          // </WebSocketTrade>
         )}
       </div>
 

@@ -117,7 +117,7 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
           onClick={handleToggleExpand}
           className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 cursor-pointer"
         >
-          <div className=" w-2/6">
+          <div className="w-full md:w-2/6">
             <div className="text-lg font-semibold text-gray-700">
               {trade.display_name || "N/A"}
             </div>

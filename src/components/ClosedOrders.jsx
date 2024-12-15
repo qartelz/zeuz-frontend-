@@ -48,7 +48,7 @@ const ClosedOrders = ({ trades }) => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto mt-8 p-4">
+    <div className="max-w-5xl mx-auto mt-8 p-0 md:p-4">
      
       {closedTrades.length > 0 ? (
 
@@ -93,7 +93,7 @@ const ClosedOrders = ({ trades }) => {
       </div>
           
           <div className="mb-4">
-            <div className="grid grid-cols-6 gap-4 bg-gray-100 px-4 py-2 font-semibold text-gray-800">
+            <div className="grid grid-cols-6 text-center gap-4 text-sm bg-gray-100 px-4 py-2 font-semibold text-gray-800">
               <div>Stock Name</div>
               <div>Trade Type</div>
               <div>Entry Price</div>
@@ -106,7 +106,7 @@ const ClosedOrders = ({ trades }) => {
           {/* Scrollable Mapped Trades Data */}
           <div
             ref={containerRef}
-            className="max-h-96 overflow-y-auto border border-gray-300 rounded-lg"
+            className="max-h-96 overflow-y-auto border text-center border-gray-300 rounded-lg"
           >
             {closedTrades.slice(0, visibleTrades).map((trade, index) => {
               const profit = calculateProfit(trade); // Assuming you have a profit calculation logic
@@ -114,22 +114,22 @@ const ClosedOrders = ({ trades }) => {
               return (
                 <div
                   key={trade.id || index}
-                  className="grid grid-cols-6 gap-4  items-center bg-white px-4 py-2 border-b border-gray-200"
+                  className="grid grid-cols-6   items-center bg-white px-4 py-2 border-b border-gray-200"
                 >
-                  <div className="text-base font-semibold text-gray-800">
+                  <div className="text-xs md:text-lg font-semibold text-gray-800">
                     {trade.display_name || "N/A"}
                   </div>
-                  <div className="text-base text-gray-800">
+                  <div className="text-xs md:text-lg text-gray-800">
                     {trade.trade_type || "N/A"}
                   </div>
-                  <div className="text-base text-gray-800">
+                  <div className="text-xs md:text-lg text-gray-800">
                     {trade.avg_price.toFixed(2)}
                   </div>
-                  <div className="text-base text-gray-800">
+                  <div className="text-xs md:text-lg text-gray-800">
                     {trade.quantity}
                   </div>
                   <div
-                    className={`text-base font-semibold ${
+                    className={`text-xs md:text-lg  font-semibold ${
                       profit > 0
                         ? "text-green-600"
                         : profit < 0
@@ -139,7 +139,7 @@ const ClosedOrders = ({ trades }) => {
                   >
                     {profit.toFixed(2)}
                   </div>
-                  <div className="text-base text-gray-800">
+                  <div className="text-xs  md:text-lg font-medium text-gray-800">
                   {new Date(trade.updated_at).toLocaleString()}
                   </div>
                 </div>

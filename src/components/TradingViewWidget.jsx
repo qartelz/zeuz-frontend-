@@ -17,7 +17,7 @@ const TradingViewWidget = () => {
 
             const url = 'https://orca-uatapi.enrichmoney.in/ert-analytics-api/v1/charts/historical';
             const userId = 'KE0070'; 
-            const jwtToken = `${broadcast_token}` 
+            const jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MjUwOTY2LCJleHAiOjE3MzQzMDkwMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MjUwOTY2NDMzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.ofBhYQO0tCfkhN3yfW7kNHLp9EMHkSZarFVRXpGkLvw"
             const payload = {
                 start_time: '2024-11-19T03:45:00.000Z',
                 end_time: '2024-11-19T09:15:00.000Z',
