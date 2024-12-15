@@ -6,10 +6,13 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import BeetleBalance from "./BeetleBalance";
-import { useWebSocketStock } from "./WebSocketStock";
 import Alert from "@mui/material/Alert";
+import useWebSocketManager from "../utils/WebSocketManager";
 
-const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
+const BuySellPanel = ({ selectedData, initialIsBuy }) => {
+  const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+  const { lastPrice } = useWebSocketManager(touchline);
+  console.log(lastPrice,"the last pricccce")
   const navigate = useNavigate();
 
   const [alertMessage, setAlertMessage] = useState("");
@@ -46,12 +49,20 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
 
-  const { lastPrice } = useWebSocketStock();
+  // const { lastPrice } = useWebSocketStock();
 
   const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
+  const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
 
   
-  const [limitPrice, setLimitPrice] = useState(""); 
+  const [limitPrice, setLimitPrice] = useState(lastPrice); 
+
+  useEffect(() => {
+    if (selectedOrderType === "Market Order") {
+      setLimitPrice(lastPrice);
+    }
+  }, [lastPrice, selectedOrderType]); 
+  
   
 
   const [isBuy, setIsBuy] = useState(null);
@@ -68,7 +79,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `https://backend.beetlezeuz.in/account/get-beetle-coins/?email=${email}`
+            `http://127.0.0.1:8000/account/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -115,9 +126,9 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
 
     const apiUrl =
       selectedData.exchange === "NSE"
-        ? "https://backend.beetlezeuz.in/trades/create-trades/"
+        ? "http://127.0.0.1:8000/trades/create-trades/"
         : selectedData.exchange === "NFO"
-        ? "https://backend.beetlezeuz.in/trades/create-futures/"
+        ? "http://127.0.0.1:8000/trades/create-futures/"
         : null;
 
     if (!apiUrl) {
@@ -155,6 +166,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
   };
 
   const [margin, setMargin] = useState(null);
+  console.log(margin,"the narrrrrrrrrrrrrrrrr")
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -167,7 +179,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
             method: "POST",
             headers: {
               Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MTcyNjMxLCJleHAiOjE3MzQyMjI2MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MTcyNjMxNzI0LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.K2v9XnfeFnqPt0mNXvqUDlGpS6B5dap38IzuQt7vVfU",
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MjUwOTY2LCJleHAiOjE3MzQzMDkwMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MjUwOTY2NDMzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.ofBhYQO0tCfkhN3yfW7kNHLp9EMHkSZarFVRXpGkLvw",
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -175,11 +187,11 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
               user_id: "KE0070",
               exchange: selectedData.exchange,
               trading_symbol: selectedData.trading_symbol,
-              price: lastPrice,
+              price: selectedOrderType === "Market Order" ? lastPrice : limitPrice,
               quantity: quantity,
-              price_type: "LMT",
-              product_type: "I",
-              transaction_type: "B",
+              price_type: priceType,
+              product_type: isDelivery ? "M" : "I",
+              transaction_type:  isBuy ? "B" : "S",
               trigger_price: "",
               book_loss_price: "",
               book_profit_price: "",
@@ -205,8 +217,10 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
       }
     };
 
+    console.log(fetchOrderMargin,"the order marginssssss")
+
     fetchOrderMargin();
-  }, [lastPrice, quantity]);
+  }, [lastPrice, quantity,isBuy,isDelivery,selectedOrderType,priceType,limitPrice  ]);
 
   return (
     <div className="px-4 bg-transparent rounded-md space-y-4 relative pt-12">
@@ -324,7 +338,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
           </div>
 
           <div className="relative border rounded-md p-3 bg-white w-64 h-[100px]">
-            {/* Horizontal Toggle Buttons */}
+            {/*Market Limit Buttons */}
             <div className="flex items-center gap-2">
               {["Market Order", "Limit Order"].map((orderType) => (
                 <button
@@ -336,7 +350,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
                   }`}
                   onClick={() => {
                     setSelectedOrderType(orderType);
-                    if (orderType === "Market Order") setLimitPrice("");
+                    if (orderType === "Market Order");
                   }}
                 >
                   {orderType}
@@ -356,7 +370,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
                   className="w-1/2 text-sm font-medium text-black border rounded-md px-2 py-1"
                   placeholder="Limit Price"
                   value={limitPrice}
-                  onChange={(e) => setLimitPrice(e.target.value)} // Update limit price
+                  onChange={(e) => setLimitPrice(e.target.value)} 
                 />
               )}
             </div>
@@ -369,7 +383,7 @@ const BuySellPanel = ({ selectedData, onClose, initialIsBuy }) => {
             htmlFor="lastPrice"
             className="absolute mt-4 font-semibold left-2 rounded-md top-[-10px] text-xs text-[#7D7D7D] bg-white px-1"
           >
-            Required Price. (BTLS)
+            Required Amount. (BTLS)
           </label>
           <input
             type="number"

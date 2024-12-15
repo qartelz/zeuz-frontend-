@@ -21,7 +21,7 @@ const TradesPage = () => {
     const fetchTrades = async () => {
       try {
         const response = await axios.get(
-          "https://backend.beetlezeuz.in/trades/trades/",
+          "http://127.0.0.1:8000/trades/trades/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -31,16 +31,22 @@ const TradesPage = () => {
 
         if (response.data && Array.isArray(response.data)) {
           setTrades(response.data);
+          console.log(response,"the trade response")
         } else {
           console.error("Unexpected response format:", response.data);
         }
       } catch (error) {
         console.error("Error fetching trades:", error);
       }
+      
     };
     useEffect(() => {
       fetchTrades();
     }, [accessToken]);
+
+   
+
+    
   
     
     const refreshTrades = () => {

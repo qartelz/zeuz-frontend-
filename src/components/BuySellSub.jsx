@@ -60,7 +60,7 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `https://backend.beetlezeuz.in/get-beetle-coins/?email=${email}`
+            `http://127.0.0.1:8000/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -107,11 +107,13 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
     }
 
 
+
+
     const apiUrl =
       selectedData.exchange === "NSE"
-        ? "https://backend.beetlezeuz.in/trades/create-trades/"
+        ? "http://127.0.0.1:8000/trades/create-trades/"
         : selectedData.exchange === "NFO"
-          ? "https://backend.beetlezeuz.in/trades/create-futures/"
+          ? "http://127.0.0.1:8000/trades/create-futures/"
           : null;
 
     if (!apiUrl) {
@@ -154,6 +156,72 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
       alert("An error occurred. Please try again later.");
     }
   };
+  // const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
+   
+  const [limitPrice, setLimitPrice] = useState(lastPrice); 
+  useEffect(() => {
+    if (selectedOrderType === "Market Order") {
+      setLimitPrice(lastPrice);
+    }
+  }, [lastPrice, selectedOrderType]); 
+
+  const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
+  const [margin, setMargin] = useState(null);
+  console.log(margin,"the narrrrrrrrrrrrrrrrr")
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrderMargin = async () => {
+      try {
+        const response = await fetch(
+          "https://orca-uatapi.enrichmoney.in/order-api/v1/order/margin",
+          {
+            method: "POST",
+            headers: {
+              Authorization:
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MjUwOTY2LCJleHAiOjE3MzQzMDkwMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MjUwOTY2NDMzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.ofBhYQO0tCfkhN3yfW7kNHLp9EMHkSZarFVRXpGkLvw",
+              "user-Id": "KE0070",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: "KE0070",
+              exchange: selectedData.exchange,
+              trading_symbol: selectedData.trading_symbol,
+              price: selectedOrderType === "Market Order" ? lastPrice : limitPrice,
+              quantity: quantity,
+              price_type: priceType,
+              product_type: isDelivery ? "M" : "I",
+              transaction_type:  isBuy ? "B" : "S",
+              trigger_price: "",
+              book_loss_price: "",
+              book_profit_price: "",
+              original_price: "",
+              original_quantity: "",
+              original_trigger_price: "",
+              oms_partner_order_no: "",
+              secondary_order_no: "",
+              oms_partner_source: "kambala",
+            }),
+          }
+        );
+        const data = await response.json();
+        if (data.success) {
+          setMargin(data.data.order_margin);
+        } else {
+          setError("Failed to fetch order margin");
+        }
+      } catch (err) {
+        setError("Error fetching data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    console.log(fetchOrderMargin,"the order marginssssss")
+
+    fetchOrderMargin();
+  }, [lastPrice, quantity,isBuy,isDelivery,selectedOrderType,priceType,limitPrice  ]);
 
   return (
     <div className=" bg-transparent rounded-md space-y-4 relative pt-16   px-10 ">
@@ -173,12 +241,11 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
           </div>
         )}
       </div>
+ <div className="bg-white text-black font-bold text-xl shadow-sm p-2 rounded-md">
+          <span>{selectedData?.display_name || "No stock selected"}</span>
+        </div>
 
-      <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-        <span>{selectedData?.display_name || "No stock selected"}</span>
-      </div>
-
-      <div className="flex items-center justify-between space-x-2">
+      {/* <div className="flex items-center justify-between space-x-2">
         <span className="text-[#7D7D7D] text-xl font-bold">I want to:</span>
         <div className="flex space-x-2">
           <button
@@ -200,7 +267,33 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
             Sell
           </button>
         </div>
-      </div>
+      </div> */}
+
+       {/* Delivery / Intraday Toggle */}
+       <div className="flex w-full justify-between items-center mb-4 border p-2 rounded-md bg-white">
+          <div className="flex w-full">
+            <button
+              className={`w-1/2 px-6 py-2 rounded-l-md ${
+                isDelivery
+                  ? "bg-[#E8FCF1] text-green-500 border font-bold"
+                  : "bg-transparent text-[#7D7D7D] border"
+              }`}
+              onClick={() => setIsDelivery(true)}
+            >
+              Delivery
+            </button>
+            <button
+              className={`w-1/2 px-6 py-2 rounded-r-md ${
+                !isDelivery
+                  ? "bg-[#E8FCF1] text-blue-500 border font-bold"
+                  : "bg-transparent text-[#7D7D7D] border"
+              }`}
+              onClick={() => setIsDelivery(false)}
+            >
+              Intraday
+            </button>
+          </div>
+        </div>
 
       <div className="space-y-2">
       <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
@@ -224,13 +317,52 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
           </div>
         </div>
 
+        <div className="relative border rounded-md p-3 bg-white w-64 h-[100px]">
+            {/*Market Limit Buttons */}
+            <div className="flex items-center gap-2">
+              {["Market Order", "Limit Order"].map((orderType) => (
+                <button
+                  key={orderType}
+                  className={`flex-1 p-2 text-sm font-medium rounded-md ${
+                    selectedOrderType === orderType
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => {
+                    setSelectedOrderType(orderType);
+                    if (orderType === "Market Order");
+                  }}
+                >
+                  {orderType}
+                </button>
+              ))}
+            </div>
+
+            {/* Conditional Input or Label */}
+            <div className="mt-3">
+              {selectedOrderType === "Market Order" ? (
+                <span className="text-sm w-1/2 font-medium text-black border rounded-md px-2 py-1">
+                  At Market
+                </span>
+              ) : (
+                <input
+                  type="number"
+                  className="w-1/2 text-sm font-medium text-black border rounded-md px-2 py-1"
+                  placeholder="Limit Price"
+                  value={limitPrice}
+                  onChange={(e) => setLimitPrice(e.target.value)} 
+                />
+              )}
+            </div>
+          </div>
+
 
         <div className="relative w-full">
           <label
             htmlFor="lastPrice"
             className="absolute mt-4 font-semibold left-2 rounded-md top-[-10px] text-xs text-[#7D7D7D] bg-white px-1"
           >
-            Price. (BTLS)
+            Amount. (BTLS)
           </label>
           <input
             type="number"
@@ -241,40 +373,10 @@ const BuySellSub = ({ selectedData, selectedTrade, onClose, initialIsBuy, setMod
           />
         </div>
 
-        <div className="relative">
-          <div
-            className="flex items-center justify-between bg-white text-[#7D7D7D] border p-2 rounded-md cursor-pointer"
-            onClick={() => setIsOrderDropdownOpen(!isOrderDropdownOpen)}
-          >
-            <span>{selectedOrderType}</span>
-            <ChevronDownIcon className="w-4 h-4" />
-          </div>
-          {isOrderDropdownOpen && (
-            <div className="absolute mt-2 bg-white border rounded-md shadow-lg z-10">
-              <button
-                className="block px-4 py-2 text-left w-full hover:bg-gray-100"
-                onClick={() => {
-                  setSelectedOrderType("Market Order");
-                  setIsOrderDropdownOpen(false);
-                }}
-              >
-                Market Order
-              </button>
-              <button
-                className="block px-4 py-2 text-left w-full hover:bg-gray-100"
-                onClick={() => {
-                  setSelectedOrderType("Limit Order");
-                  setIsOrderDropdownOpen(false);
-                }}
-              >
-                Limit Order
-              </button>
-            </div>
-          )}
-        </div>
+       
       </div>
 
-      <div className="flex px-10 text-white text-bold space-x-2">
+      <div className="flex text-white text-bold mt-2 space-x-2">
         <button
           className={`w-full px-2 py-2 rounded-md ${isBuy ? "bg-green-800" : "bg-[#D83232]"
             } text-white`}

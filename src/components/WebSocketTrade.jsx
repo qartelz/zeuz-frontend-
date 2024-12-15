@@ -12,11 +12,11 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
   const broadcast_token= authData?.broadcast_token;
 
   useEffect(() => {
-    const heartbeatInterval = 60000; // 60 seconds
-    const touchlineInterval = 5000; // 5 seconds
+    const heartbeatInterval = 60000; 
+    const touchlineInterval = 5000; 
     let heartbeatTimer;
     let touchlineTimer;
-    const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws"); // Use environment variable
+    const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws"); 
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -76,15 +76,15 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
       console.log("WebSocket disconnected");
     };
 
-    // Cleanup on unmount or when selectedTrade changes
+    
     return () => {
       if (heartbeatTimer) clearInterval(heartbeatTimer);
       if (touchlineTimer) clearInterval(touchlineTimer);
       ws.close();
     };
-  }, [selectedTrade]); // Consider if dependency on selectedTrade is necessary
+  }, [selectedTrade]); 
 
-  // Update lastPrice when selectedTrade changes
+ 
   useEffect(() => {
     if (selectedTrade?.strike_price) {
       setLastPrice(selectedTrade.strike_price);

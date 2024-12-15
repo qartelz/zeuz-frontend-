@@ -8,7 +8,7 @@ import StockInfo from "../components/StockInfo";
 import BuySellPanel from "../components/BuySellPanel";
 import BeetleBalance from "../components/BeetleBalance";
 import OptionChain from "../components/OptionChain";
-import { WebSocketStock } from "../components/WebSocketStock";
+// import { WebSocketStock } from "../components/WebSocketStock";
 
 const LearnPage = () => {
   const [chartData, setChartData] = useState([]);
@@ -26,7 +26,7 @@ const LearnPage = () => {
               "Content-Type": "application/json",
               "user-id": "KE0070",
               Authorization:
-                "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzMyMTU4Mjc2LCJleHAiOjE3MzIxNjg4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzMyMTU4Mjc2MDA3LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.8Gir-2o5Ta6JJ81Tcu9DuQdBEi2SAMb6d6_lbvWHfTo",
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzMyMTU4Mjc2LCJleHAiOjE3MzIxNjg4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzMyMTU4Mjc2MDA3LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.8Gir-2o5Ta6JJ81Tcu9DuQdBEi2SAMb6d6_lbvWHfTo",
             },
             body: JSON.stringify({
               start_time: "2024-11-19T03:45:00.000Z",
@@ -69,11 +69,11 @@ const LearnPage = () => {
     
     const getApiEndpoint = () => {
       if (heading === "Equity Trading") {
-        return "https://backend.beetlezeuz.in/instrument/search/?exchange=NSE";
+        return "http://127.0.0.1:8000/instrument/search/?exchange=NSE";
       } else if (heading === "Futures Trading") {
-        return "https://backend.beetlezeuz.in/instrument/search/?exchange=NFO&segment=FUT";
+        return "http://127.0.0.1:8000/instrument/search/?exchange=NFO&segment=FUT";
       } else if (heading === "Options Trading") {
-        return "https://backend.beetlezeuz.in/instrument/search-options/?exchange=NFO&segment=OPT";
+        return "http://127.0.0.1:8000/instrument/search-options/?exchange=NFO&segment=OPT";
       }
       return null;
     };
@@ -145,7 +145,7 @@ const LearnPage = () => {
 
         <p className="mt-4 text-center text-sm text-gray-500">
           or change{" "}
-          <a className="text-black" href="/practice">
+          <a className="text-black" href="/markets">
             <strong>
               <u>Trade Type</u>
             </strong>
@@ -188,7 +188,7 @@ const LearnPage = () => {
       </div>
 
       {selectedData && !searchQuery && heading !== "Options Trading" && (
-        <WebSocketStock selectedData={selectedData}>
+        // <WebSocketStock selectedData={selectedData}>
           <div className="grid grid-cols-1 md:grid-cols-[70%_25%] gap-6 p-6">
             <div >
               <StockInfo
@@ -203,7 +203,7 @@ const LearnPage = () => {
               <BuySellPanel selectedData={selectedData} />
             </div>
           </div>
-        </WebSocketStock>
+        // </WebSocketStock>
       )}
 
       {heading === "Options Trading" && (

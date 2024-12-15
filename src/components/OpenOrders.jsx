@@ -1,10 +1,16 @@
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import BuySellSub from "./BuySellSub";
 import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
 import TradeCard from "./TradeCard";
 import { useLocation } from 'react-router-dom';
+import axios from "axios";
 
 const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
+
+  const authDataString = localStorage.getItem("authData");
+  const authData = authDataString ? JSON.parse(authDataString) : null;
+  const accessToken = authData?.access;
+  const user_id = authData?.user_id;
   const location = useLocation();
   const [pnlMap, setPnlMap] = useState({}); // Mapping of trade IDs to PnL values
 
@@ -42,6 +48,32 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
     setModalOpen(true);
   };
 
+  const [totalProfitLoss, setTotalProfitLoss] = useState(null);
+  const [totalAvbl, setTotalAvbl] = useState(null);
+  const [totalInvested, setTotalInvested] = useState(null);
+
+  useEffect(() => {
+    const fetchProfitLoss = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/account/trade-summary/",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        setTotalProfitLoss(response.data.total_profit_loss);
+        setTotalAvbl(response.data.beetle_coins.coins);
+        setTotalInvested(response.data.beetle_coins.used_coins);
+      } catch (error) {
+        console.error("Error fetching profit/loss data:", error);
+      }
+    };
+
+    fetchProfitLoss();
+  }, []);
+
   return (
     <>
       <div className="max-w-5xl mx-auto mt-8 p-4">
@@ -49,48 +81,41 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
           <>
           {location.pathname === "/portfolio"  && 
             <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
-              <div className="flex flex-wrap justify-between items-center">
-                <div className="flex flex-col text-center">
-                  <span className="text-sm font-medium text-gray-500">
-                    Total Trades
-                  </span>
-                  <span className="text-lg font-semibold text-gray-800">
-                    {displayedTrades.length}
-                  </span>
+                <div className="flex flex-wrap justify-between items-center">
+                  <div className="flex flex-col text-center">
+                    <span className="text-sm font-bold text-gray-500">
+                      Total Open Positions
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800">
+                      {displayedTrades.length}
+                    </span>
+                  </div>
+                  <div className="flex flex-col  text-center">
+                    <span className="text-sm font-bold text-gray-500">
+                      Total Investment
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800">
+                    {totalInvested}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col text-center">
+                    <span className="text-sm font-bold text-gray-500">
+                      Total P&L
+                    </span>
+                    <span
+                      className={`text-lg font-semibold ${
+                        totalPnL > 0
+                          ? "text-green-600"
+                          : totalPnL < 0
+                          ? "text-red-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      ₹{totalPnL.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col text-center">
-                  <span className="text-sm font-medium text-gray-500">
-                    Total Investment
-                  </span>
-                  <span className="text-lg font-semibold text-gray-800">
-                    {/* ₹{totalInvestment.toFixed(2)} */}
-                  </span>
-                </div>
-                <div className="flex flex-col text-center">
-                  <span className="text-sm font-medium text-gray-500">
-                    Current Value
-                  </span>
-                  <span className="text-lg font-semibold text-gray-800">
-                    {/* ₹{currentValue.toFixed(2)} */}
-                  </span>
-                </div>
-                <div className="flex flex-col text-center">
-                  <span className="text-sm font-medium text-gray-500">
-                    Total P&L
-                  </span>
-                  <span
-                    className={`text-lg font-semibold ${
-                      totalPnL > 0
-                        ? "text-green-600"
-                        : totalPnL < 0
-                        ? "text-red-600"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    ₹{totalPnL.toFixed(2)}
-                  </span>
-                </div>
-              </div>
             </div>
             } 
 

@@ -7,6 +7,7 @@ const ClosedOrders = ({ trades }) => {
   const closedTrades = trades.filter(
     (trade) => trade.trade_status === "completed"
   );
+  console.log(closedTrades,"the closed  trades")
 
   // Calculate total investment, current value, total P&L, and average P&L
   const totalInvestment = closedTrades.reduce(
@@ -14,12 +15,7 @@ const ClosedOrders = ({ trades }) => {
     0
   );
 
-  const currentValue = closedTrades.reduce(
-    (sum, trade) => sum + trade.exit_price * trade.quantity,
-    0
-  );
 
-  const totalPnL = currentValue - totalInvestment;
  
 
   const calculateProfit = (trade) => {
@@ -62,53 +58,48 @@ const ClosedOrders = ({ trades }) => {
 <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">
-              Total Trades
+            <span className="text-sm font-bold text-gray-500">
+             Total Closed Positions
             </span>
             <span className="text-lg font-semibold text-gray-800">
               {closedTrades.length}
+             
             </span>
           </div>
           <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-bold text-gray-500">
               Total Investment
             </span>
             <span className="text-lg font-semibold text-gray-800">
               ₹{totalInvestment.toFixed(2)}
             </span>
           </div>
+        
           <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">
-              Current Value
-            </span>
-            <span className="text-lg font-semibold text-gray-800">
-              ₹{currentValue.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex flex-col text-center">
-            <span className="text-sm font-medium text-gray-500">Total P&L</span>
+            <span className="text-sm font-bold text-gray-500">Total P&L</span>
             <span
-              className={`text-lg font-semibold ${
-                totalPnL > 0
-                  ? "text-green-600"
-                  : totalPnL < 0
-                  ? "text-red-600"
-                  : "text-gray-500"
-              }`}
+              // className={`text-lg font-semibold ${
+              //   totalPnL > 0
+              //     ? "text-green-600"
+              //     : totalPnL < 0
+              //     ? "text-red-600"
+              //     : "text-gray-500"
+              // }`}
             >
-              ₹{totalPnL.toFixed(2)}
+              {/* ₹{totalPnL.toFixed(2)} */}
             </span>
           </div>
         </div>
       </div>
           
           <div className="mb-4">
-            <div className="grid grid-cols-5 gap-4 bg-gray-100 px-4 py-2 font-semibold text-gray-800">
+            <div className="grid grid-cols-6 gap-4 bg-gray-100 px-4 py-2 font-semibold text-gray-800">
               <div>Stock Name</div>
               <div>Trade Type</div>
               <div>Entry Price</div>
               <div>Closing Price</div>
               <div>Profit / Loss</div>
+              <div>Executed On</div>
             </div>
           </div>
 
@@ -123,7 +114,7 @@ const ClosedOrders = ({ trades }) => {
               return (
                 <div
                   key={trade.id || index}
-                  className="grid grid-cols-5 gap-4 bg-white px-4 py-2 border-b border-gray-200"
+                  className="grid grid-cols-6 gap-4  items-center bg-white px-4 py-2 border-b border-gray-200"
                 >
                   <div className="text-base font-semibold text-gray-800">
                     {trade.display_name || "N/A"}
@@ -147,6 +138,9 @@ const ClosedOrders = ({ trades }) => {
                     }`}
                   >
                     {profit.toFixed(2)}
+                  </div>
+                  <div className="text-base text-gray-800">
+                  {new Date(trade.updated_at).toLocaleString()}
                   </div>
                 </div>
               );

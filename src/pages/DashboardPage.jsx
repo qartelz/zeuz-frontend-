@@ -26,7 +26,7 @@ const DashboardPage = () => {
     const fetchOpenOrders = async () => {
       try {
         const response = await axios.get(
-          "https://backend.beetlezeuz.in/trades/trades/",
+          "http://127.0.0.1:8000/trades/trades/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,

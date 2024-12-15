@@ -12,12 +12,12 @@ import AdminLogin from "./pages/AdminLogin";
 import TradesPage from "./pages/TradesPage";
 
 import PrivateRoute from "./components/PrivateRoute"; 
-import { WebSocketStock } from "./components/WebSocketStock";
 import { WebSocketTrade } from "./components/WebSocketTrade";
+import { WebSocketProvider } from "./utils/WebSocketContext";
 
 function App() {
   return (  
-    <WebSocketStock>
+    <WebSocketProvider>
       <WebSocketTrade>
         <div className="relative overflow-hidden bg-slate-50">
           <div className="absolute inset-0 z-0"></div>
@@ -40,7 +40,7 @@ function App() {
           </div>
         </div>
       </WebSocketTrade>
-    </WebSocketStock>
+      </WebSocketProvider>
   );
 }
 

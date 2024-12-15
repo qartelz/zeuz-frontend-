@@ -17,7 +17,7 @@ export const WebSocketStock = ({ children, selectedData }) => {
     const touchlineInterval = 5000; // 5 seconds
     let heartbeatTimer;
     let touchlineTimer;
-    const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws"); // Use environment variable
+    const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws"); 
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -39,7 +39,7 @@ export const WebSocketStock = ({ children, selectedData }) => {
         ws.send(JSON.stringify(heartbeatMessage));
       }, heartbeatInterval);
 
-      // Setup touchline
+     
       if (selectedData) {
         touchlineTimer = setInterval(() => {
           ws.send(
