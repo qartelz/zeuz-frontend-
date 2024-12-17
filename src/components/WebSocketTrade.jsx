@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 const WebSocketTradeContext = createContext(null);
 
-export const WebSocketTrade = ({ children, selectedTrade }) => {
-  const [lastPrice, setLastPrice] = useState(selectedTrade?.strike_price || "0.00");
+export const WebSocketTrade = ({ children,touchline }) => {
+  const [lastPrice, setLastPrice] = useState( "0.00");
   const [volume, setVolume] = useState("0.00");
   const [percentChange, setPercentChange] = useState("0.00");
 
@@ -19,13 +19,13 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
     const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws"); 
 
     ws.onopen = () => {
-      console.log("WebSocket connected");
+      console.log("WebSocket connected of trade");
 
       const initialData = {
         t: "c",
         uid: "KE0070",
         actid: "KE0070",
-        susertoken: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MTcyNjMxLCJleHAiOjE3MzQyMjI2MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MTcyNjMxNzI0LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.K2v9XnfeFnqPt0mNXvqUDlGpS6B5dap38IzuQt7vVfU",
+        susertoken: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NDU3MjM5LCJleHAiOjE3MzQ0ODE4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NDU3MjM5OTY4LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.3vXZqD16ZHDdfzd5HsFrPVo3lF4leCahAqW-CoLqL-g",
         source: "API",
       };
 
@@ -38,13 +38,13 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
         ws.send(JSON.stringify(heartbeatMessage));
       }, heartbeatInterval);
 
-      // Setup touchline
-      if (selectedTrade) {
+   
+      if (ws ) {
         touchlineTimer = setInterval(() => {
           ws.send(
             JSON.stringify({
               t: "t",
-              k: `${selectedTrade.exchange}|${selectedTrade.token_id}`,
+              k: touchline, 
             })
           );
         }, touchlineInterval);
@@ -82,14 +82,10 @@ export const WebSocketTrade = ({ children, selectedTrade }) => {
       if (touchlineTimer) clearInterval(touchlineTimer);
       ws.close();
     };
-  }, [selectedTrade]); 
+  }, [touchline, touchline]); 
 
  
-  useEffect(() => {
-    if (selectedTrade?.strike_price) {
-      setLastPrice(selectedTrade.strike_price);
-    }
-  }, [selectedTrade]);
+  
 
   return (
     <WebSocketTradeContext.Provider

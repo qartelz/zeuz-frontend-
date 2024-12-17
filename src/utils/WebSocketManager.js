@@ -21,17 +21,18 @@ const useWebSocketManager = (touchline) => {
     let heartbeatTimer;
 
     ws.onopen = () => {
-      console.log("WebSocket connected");
+     
 
       const initialData = {
         t: "c",
         uid: "KE0070",
         actid: "KE0070",
         susertoken:
-          "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MjUwOTY2LCJleHAiOjE3MzQzMDkwMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MjUwOTY2NDMzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.ofBhYQO0tCfkhN3yfW7kNHLp9EMHkSZarFVRXpGkLvw", // Replace with dynamic or environment-based token
+          "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NDU3MjM5LCJleHAiOjE3MzQ0ODE4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NDU3MjM5OTY4LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.3vXZqD16ZHDdfzd5HsFrPVo3lF4leCahAqW-CoLqL-g", // Replace with dynamic or environment-based token
         source: "API",
       };
       ws.send(JSON.stringify(initialData));
+      console.log("WebSocket connected");
 
       heartbeatTimer = setInterval(() => {
         const heartbeatMessage = { t: "h" };
@@ -57,6 +58,7 @@ const useWebSocketManager = (touchline) => {
         }
         if (data.v) setVolume(data.v);
         if (data.pc) setPercentChange(data.pc);
+        console.log("Received data from WebSocket:", data);
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }

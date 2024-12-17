@@ -12,18 +12,38 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
   const location = useLocation();
-  const [pnlMap, setPnlMap] = useState({}); // Mapping of trade IDs to PnL values
+
 
   // Memoized function to update PnL for a specific trade
-  const handlePnLUpdate = useCallback((pnl, tradeId) => {
-    setPnlMap((prevMap) => {
-      const newMap = { ...prevMap, [tradeId]: pnl };
-      return newMap;
-    });
-  }, []);
+  // const handlePnLUpdate = useCallback((pnl, tradeId) => {
+  //   setPnlMap((prevMap) => {
+  //     const newMap = { ...prevMap, [tradeId]: pnl };
+  //     return newMap;
+  //   });
+  // }, []);
 
   // Calculate the total PnL dynamically
-  const totalPnL = Object.values(pnlMap).reduce((sum, pnl) => sum + pnl, 0);
+  // const totalPnL = Object.values(pnlMap).reduce((sum, pnl) =>   pnl +sum, 0);
+
+
+  // const [totalPnL, setTotalPnL] = useState(0);
+  //  const handlePnLUpdate = useCallback((newPnL, tradeId) =>
+  //   { setTotalPnL((prevTotalPnL) => 
+  //     {  const updatedTrades = trades.map((trade) => 
+  //       trade.id === tradeId ? { ...trade, pnl: newPnL } : trade );
+  //        const newTotalPnL = 
+  //        updatedTrades.reduce( (sum, trade) => sum + (trade.pnl || 0), 0 );
+  //         return newTotalPnL; }); }, [trades]);
+
+  const [pnlValues, setPnLValues] = useState({});
+   const [totalPnL, setTotalPnL] = useState(0);
+    const handlePnLUpdate = useCallback((newPnL, tradeId) =>
+     { setPnLValues((prevPnLValues) => ({ ...prevPnLValues, [tradeId]: newPnL, }));
+     }, []); useEffect(() =>
+      { const newTotalPnL = Object.values(pnlValues).reduce((sum, pnl) => sum + pnl, 0);
+         setTotalPnL(newTotalPnL); }, [pnlValues]);
+
+
 
   const openTrades = trades.filter(
     (trade) => trade.trade_status === "incomplete"
@@ -123,7 +143,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
               <TradeCard
                 key={trade.id || trade.token_id}
                 trade={trade}
-                onPnLUpdate={handlePnLUpdate}
+                onPnLUpdate={(newPnL) => handlePnLUpdate(newPnL, trade.id)}
                 onOpenModal={handleOpenModal}
               />
             ))}
@@ -148,6 +168,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
                   setModalOpen={setModalOpen}
                   onTradeSuccess={refreshTrades}
                   productType={selectedTrade.product_type}
+                  quantity={selectedTrade.quantity}
                 />
               </div>
             </div>

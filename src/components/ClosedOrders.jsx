@@ -1,25 +1,64 @@
+import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 
-const ClosedOrders = ({ trades }) => {
+const ClosedOrders = () => {
+
+  const authDataString = localStorage.getItem("authData");
+  const authData = authDataString ? JSON.parse(authDataString) : null;
+  const accessToken = authData?.access;
+
   const [visibleTrades, setVisibleTrades] = useState(100);
   const containerRef = useRef(null);
 
-  const closedTrades = trades.filter(
-    (trade) => trade.trade_status === "completed"
-  );
-  console.log(closedTrades,"the closed  trades")
+ 
+  const [trades, setTrades] = useState([]);
+
+  const fetchTrades = async () => {
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:8000/trades/closed-trades/",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.data && Array.isArray(response.data)) {
+        setTrades(response.data);
+        console.log(response,"the trade response")
+      } else {
+        console.error("Unexpected response format:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching trades:", error);
+    }
+    
+  };
+  useEffect(() => {
+    fetchTrades();
+  }, [accessToken]);
+
+  const totalPnL = trades.reduce((acc, trade) => {
+    // Convert profit_loss to a number and add it to the accumulator
+    const profitLoss = parseFloat(trade.profit_loss);
+    return acc + (isNaN(profitLoss) ? 0 : profitLoss);
+  }, 0);
+ 
+  console.log(trades,"the closedwwwwwwwwwwwwwwwwwwwwww  trades")
 
   // Calculate total investment, current value, total P&L, and average P&L
-  const totalInvestment = closedTrades.reduce(
-    (sum, trade) => sum + trade.avg_price * trade.quantity,
+  const totalInvestment = trades.reduce(
+    (sum, trade) => sum + trade.avg_price * trade.sell_quantity,
     0
   );
 
+// const totalPnL = trades.reduce((sum, trade) => sum + trade.profit_loss, 0);
 
  
 
   const calculateProfit = (trade) => {
-    const profit = (trade.exit_price - trade.avg_price) * trade.quantity;
+    const profit = (trade.exit_price - trade.avg_price) * trade.sell_quantity;
     return profit;
   };
 
@@ -50,7 +89,7 @@ const ClosedOrders = ({ trades }) => {
   return (
     <div className="max-w-5xl mx-auto mt-8 p-0 md:p-4">
      
-      {closedTrades.length > 0 ? (
+      {trades.length > 0 ? (
 
         
         <div className="overflow-x-auto">
@@ -62,7 +101,7 @@ const ClosedOrders = ({ trades }) => {
              Total Closed Positions
             </span>
             <span className="text-lg font-semibold text-gray-800">
-              {closedTrades.length}
+              {trades.length}
              
             </span>
           </div>
@@ -78,26 +117,29 @@ const ClosedOrders = ({ trades }) => {
           <div className="flex flex-col text-center">
             <span className="text-sm font-bold text-gray-500">Total P&L</span>
             <span
-              // className={`text-lg font-semibold ${
-              //   totalPnL > 0
-              //     ? "text-green-600"
-              //     : totalPnL < 0
-              //     ? "text-red-600"
-              //     : "text-gray-500"
-              // }`}
+              className={`text-lg font-semibold ${
+                totalPnL > 0
+                  ? "text-green-600"
+                  : totalPnL < 0
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
             >
-              {/* ₹{totalPnL.toFixed(2)} */}
+              ₹{totalPnL}
             </span>
           </div>
         </div>
       </div>
           
           <div className="mb-4">
-            <div className="grid grid-cols-6 text-center gap-4 text-sm bg-gray-100 px-4 py-2 font-semibold text-gray-800">
+            <div className="grid grid-cols-7 text-center gap-4 text-sm bg-gray-100 px-4 py-2 font-semibold text-gray-800">
               <div>Stock Name</div>
-              <div>Trade Type</div>
+              <div>Order Type</div>
+              {/* <div>Trade Type</div> */}
               <div>Entry Price</div>
               <div>Closing Price</div>
+              <div>Quantity</div>
+
               <div>Profit / Loss</div>
               <div>Executed On</div>
             </div>
@@ -108,39 +150,46 @@ const ClosedOrders = ({ trades }) => {
             ref={containerRef}
             className="max-h-96 overflow-y-auto border text-center border-gray-300 rounded-lg"
           >
-            {closedTrades.slice(0, visibleTrades).map((trade, index) => {
+            {trades.slice(0, visibleTrades).map((trade, index) => {
               const profit = calculateProfit(trade); // Assuming you have a profit calculation logic
 
               return (
                 <div
                   key={trade.id || index}
-                  className="grid grid-cols-6   items-center bg-white px-4 py-2 border-b border-gray-200"
+                  className="grid grid-cols-7   items-center bg-white px-4 py-2 border-b border-gray-200"
                 >
                   <div className="text-xs md:text-lg font-semibold text-gray-800">
                     {trade.display_name || "N/A"}
                   </div>
                   <div className="text-xs md:text-lg text-gray-800">
-                    {trade.trade_type || "N/A"}
+                    {trade.product_type || "N/A"}
                   </div>
+                  {/* <div className="text-xs md:text-lg text-gray-800">
+                    {trade.trade_type || "N/A"}
+                  </div> */}
                   <div className="text-xs md:text-lg text-gray-800">
                     {trade.avg_price.toFixed(2)}
                   </div>
                   <div className="text-xs md:text-lg text-gray-800">
-                    {trade.quantity}
+                    {trade.sell_price}
                   </div>
+                  <div className="text-xs md:text-lg text-gray-800">
+                    {trade.sell_quantity}
+                  </div>
+                  
                   <div
                     className={`text-xs md:text-lg  font-semibold ${
-                      profit > 0
+                      trade.profit_loss > 0
                         ? "text-green-600"
-                        : profit < 0
+                        : trade.profit_loss < 0
                         ? "text-red-600"
                         : "text-gray-500"
                     }`}
                   >
-                    {profit.toFixed(2)}
+                    {trade.profit_loss}
                   </div>
                   <div className="text-xs  md:text-lg font-medium text-gray-800">
-                  {new Date(trade.updated_at).toLocaleString()}
+                  {new Date(trade.sell_date).toLocaleString()}
                   </div>
                 </div>
               );

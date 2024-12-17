@@ -3,49 +3,32 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import useWebSocketManager from "../utils/WebSocketManager";
 const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
-  // const [lastPrice, setLastPrice] = useState(trade.avg_price || "0.00");
 
-  const touchline = `${trade.exchange}|${trade.token_id}`;
+ const touchline = `${trade.exchange}|${trade.token_id}`;
   const { lastPrice } = useWebSocketManager(touchline);
 
+  const pnl =
+    lastPrice && parseFloat(lastPrice) !== 0
+      ? (
+          (parseFloat(lastPrice) - parseFloat(trade.avg_price)) *
+          parseFloat(trade.quantity)
+        ).toFixed(2)
+      : "N/A";
 
+  const isPositive = pnl >= 0;
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setLastPrice((prevPrice) => {
-  //       let newPrice = prevPrice + (Math.random() * 3); // Increment by a random number between 0 and 3
-  //       if (newPrice > 295) newPrice = 285 + (Math.random() * 3); // Reset to 285-295 range
-  //       return parseFloat(newPrice.toFixed(2)); // Limit to two decimal places
-  //     });
-  //   }, 1000); // Update every second
+  
+  useEffect(() => {
+    if (pnl !== "N/A") {
+      onPnLUpdate(parseFloat(pnl)); 
+    }
+  }, [pnl, onPnLUpdate]);
 
-  //   return () => clearInterval(interval); // Cleanup on unmount
-  // }, []);
-
-
-
+ 
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const calculatePnL = useCallback(() => {
-    // Check if lastPrice is 0
-    if (parseFloat(lastPrice) === 0) {
-      return "N/A"; // Return "N/A" if lastPrice is 0
-    }
   
-    // Otherwise, calculate PnL
-    const pnl = parseFloat(lastPrice) - parseFloat(trade.avg_price);
-    return pnl.toFixed(2); // Return the PnL rounded to two decimal places
-  }, [lastPrice, trade.avg_price]);
-  
-
-
-
-  useEffect(() => {
-    // Notify the parent of the updated PnL
-    const pnl = parseFloat(calculatePnL());
-    onPnLUpdate(pnl, trade.id);
-  }, [lastPrice, calculatePnL, onPnLUpdate, trade.id]);
 
   const handleToggleExpand = () => {
     setIsExpanded((prev) => !prev);
@@ -55,62 +38,8 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
     onOpenModal(trade);
   };
 
-  // useEffect(() => {
-  //   const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws");
-  //   const touchlineInterval = 5000; // 5 seconds
-  //   let touchlineTimer;
-
-  //   ws.onopen = () => {
-  //     console.log(`WebSocket connected for trade: ${trade.display_name}`);
-
-  //     const initialData = {
-  //       t: "c",
-  //       uid: "KE0070",
-  //       actid: "KE0070",
-  //       susertoken:
-  //         "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MTcyNjMxLCJleHAiOjE3MzQyMjI2MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MTcyNjMxNzI0LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.K2v9XnfeFnqPt0mNXvqUDlGpS6B5dap38IzuQt7vVfU", // Replace with a dynamic or environment-based token
-  //       source: "API",
-  //     };
-  //     ws.send(JSON.stringify(initialData));
-
-  //     // Send touchline data periodically
-  //     touchlineTimer = setInterval(() => {
-  //       ws.send(
-  //         JSON.stringify({
-  //           t: "t",
-  //           k: `${trade.exchange}|${trade.token_id}`,
-  //         })
-  //       );
-  //     }, touchlineInterval);
-  //   };
-
-  //   ws.onmessage = (event) => {
-  //     console.log(`Message for ${trade.display_name}:`, event.data);
-  //     try {
-  //       const data = JSON.parse(event.data);
-  //       if (data.lp) setLastPrice(data.lp);
-
-
-  //     } catch (error) {
-  //       console.error("Error parsing WebSocket message:", error);
-  //     }
-  //   };
-
-  //   ws.onerror = (error) => {
-  //     console.error(`WebSocket error for ${trade.display_name}:`, error);
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log(`WebSocket disconnected for ${trade.display_name}`);
-  //   };
-
-  //   return () => {
-  //     clearInterval(touchlineTimer);
-  //     ws.close();
-  //   };
-  // }, [trade]);
-
   return (
+    
     <>
       <div className="bg-white rounded-lg mb-4 shadow transition-all duration-300">
         <div
@@ -123,38 +52,23 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
             </div>
 
             <div className="text-left flex justify-v md:justify-normal items-center md:items-start md:flex-col">
-              <div className="text-lg font-semibold flex items-center">
-                {(() => {
-                  const pnl = (lastPrice && parseFloat(lastPrice) !== 0) 
-                  ? ( (parseFloat(lastPrice) - parseFloat(trade.avg_price)) * parseFloat(trade.quantity) ).toFixed(2)
-                  : 'N/A';
-                
-                  const isPositive = pnl >= 0; 
-                  return (
-                    <>
-                      <span
-                        className={
-                          isPositive ? "text-green-500" : "text-red-500"
-                        }
-                      >
-                        ₹{pnl}
-                      </span>
-                      <span className="ml-1">
-                        {pnl >= 0 ? (
-                          <ChevronUp className="w-4 h-4 mr-1 text-green-500" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 mr-1 text-red-500" />
-                        )}
-                      </span>
-                    </>
-                  );
-                })()}
-              </div>
-              <div className="text-sm font-medium text-gray-500">
-                {parseFloat(lastPrice) >= parseFloat(trade.avg_price)
-                  ? "Profit"
-                  : "Loss"}
-              </div>
+            <div className="text-lg font-semibold flex items-center">
+      <span className={isPositive ? "text-green-500" : "text-red-500"}>
+        ₹{pnl}
+      </span>
+      <span className="ml-1">
+      {pnl !== "N/A" && isPositive ? (
+  <ChevronUp className="w-4 h-4 mr-1 text-green-500" />
+) : pnl !== "N/A" && !isPositive ? (
+  <ChevronDown className="w-4 h-4 mr-1 text-red-500" />
+) : null}
+
+      </span>
+    </div>
+    <div className="text-sm font-medium text-gray-500">
+  {pnl === "N/A" ? "" : pnl >= 0 ? "Profit" : "Loss"}
+</div>
+
             </div>
           </div>
 
@@ -162,27 +76,20 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
             <div className="flex space-x-2 md:grid grid-cols-5 mt-4 md:mt-0 w-full">
               <div className="flex flex-col">
                 <div className="text-sm font-medium text-gray-500">
-                  Trade Type 
+                  Trade Type
                 </div>
                 <div className="text-md font-semibold text-gray-800">
                   {trade.trade_type}
-               
-                  
-                 
                 </div>
-                
               </div>
               <div className="flex  flex-col">
                 <div className="text-sm font-medium text-gray-500">
-                  Product Type 
+                  Product Type
                 </div>
                 <div className="text-md font-semibold text-gray-800">
-                
-                  {trade.product_type}
-                  
-                 
+                  {trade.product_type.charAt(0).toUpperCase() +
+                    trade.product_type.slice(1)}
                 </div>
-                
               </div>
 
               <div className="flex flex-col">

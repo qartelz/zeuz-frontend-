@@ -17,17 +17,20 @@ const BuySellSub = ({
   initialIsBuy,
   setModalOpen,
   onTradeSuccess,
-  productType
+  productType,
+  quantity
 }) => {
-
+  const [margin, setMargin] = useState("0.00");
+  const marginValue = parseFloat(margin);
   const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
   const { lastPrice } = useWebSocketManager(touchline);
-  
+console.log(productType,"the product type")
 
 
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [isDelivery, setIsDelivery] = useState(false);
+  const [isDelivery, setIsDelivery] = useState();
+  console.log(isDelivery,"the devlojhvcxcvbn")
 
 
 
@@ -35,19 +38,21 @@ const BuySellSub = ({
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
+  
+  const [quantitys, setQuantitys] = useState(quantity);
+  console.log(quantity,"the quantiqqqqqqqqqqqqqqqqqqqq")
+  
 
-  const [quantity, setQuantity] = useState(1);
-
-  const handleIncrease = () => setQuantity((prev) => prev + 1);
-  const handleDecrease = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const handleIncrease = () => setQuantitys((prev) => prev + 1);
+  const handleDecrease = () => setQuantitys((prev) => Math.max(1, prev - 1));
   const handleInputChange = (e) => {
     const value = e.target.value.replace(/^0+/, "");
     if (value === "") {
-      setQuantity("");
+      setQuantitys("");
     } else {
       const parsedValue = parseInt(value, 10);
       if (!isNaN(parsedValue)) {
-        setQuantity(parsedValue);
+        setQuantitys(parsedValue);
       }
     }
   };
@@ -101,10 +106,11 @@ const BuySellSub = ({
       trade_type: isBuy ? "Buy" : "Sell",
       avg_price: lastPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
-      invested_coin: (lastPrice || 0) * quantity,
+      invested_coin: marginValue,
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
       margin_required: 4159.25,
+      product_type: productType,
     };
     if (lastPrice <= 0) {
       alert("Cannot execute trade: Invalid price.");
@@ -165,7 +171,7 @@ const BuySellSub = ({
   }, [lastPrice, selectedOrderType]);
 
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
-  const [margin, setMargin] = useState("0.00");
+ 
   console.log(margin, "the narrrrrrrrrrrrrrrrr");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -179,7 +185,7 @@ const BuySellSub = ({
             method: "POST",
             headers: {
               Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MjUwOTY2LCJleHAiOjE3MzQzMDkwMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MjUwOTY2NDMzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.ofBhYQO0tCfkhN3yfW7kNHLp9EMHkSZarFVRXpGkLvw",
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MzI5MDIyLCJleHAiOjE3MzQzOTU0MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MzI5MDIyMjg2LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.o3nNfvEBE46nbpxbjpSES7Mu-3WRu7MRTdfNJrTTIe4",
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -189,7 +195,7 @@ const BuySellSub = ({
               trading_symbol: selectedData.trading_symbol,
               price:
                 selectedOrderType === "Market Order" ? lastPrice : limitPrice,
-              quantity: quantity,
+              quantity: quantitys,
               price_type: priceType,
               product_type: isDelivery ? "M" : "I",
               transaction_type: isBuy ? "B" : "S",
@@ -311,7 +317,7 @@ const BuySellSub = ({
           />
           <input
             type="number"
-            value={quantity}
+            value={quantitys}
             onChange={handleInputChange}
             className="w-16 text-center border border-gray-300 rounded-md focus:outline-none"
             min="0"

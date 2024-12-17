@@ -43,7 +43,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
     }
   };
 
-  console.log(selectedData, "the selected data is");
+  console.log(selectedData, "ufiutfuyfoufutfufu");
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -102,6 +102,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       alert("Cannot execute trade: Invalid price.");
       return;
     }
+   
 
     const tradeData = {
       user: user_id,
@@ -119,11 +120,11 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       trade_type: isBuy ? "Buy" : "Sell",
       avg_price: lastPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
-      invested_coin: (lastPrice || 0) * quantity,
+      invested_coin: marginValue,
       trade_status: "incomplete",
       ticker: selectedData.ticker || "",
       margin_required: 4159.25,
-      // product_type: isDelivery ? "M" : "I",
+      product_type: isDelivery ? "Delivery" : "Intraday",
     };
 
     const apiUrl =
@@ -168,6 +169,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   };
 
   const [margin, setMargin] = useState(null);
+  const marginValue = parseFloat(margin);
   console.log(margin,"the narrrrrrrrrrrrrrrrr")
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -181,7 +183,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
             method: "POST",
             headers: {
               Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MjUwOTY2LCJleHAiOjE3MzQzMDkwMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MjUwOTY2NDMzLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.ofBhYQO0tCfkhN3yfW7kNHLp9EMHkSZarFVRXpGkLvw",
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MzI5MDIyLCJleHAiOjE3MzQzOTU0MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MzI5MDIyMjg2LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.o3nNfvEBE46nbpxbjpSES7Mu-3WRu7MRTdfNJrTTIe4",
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },

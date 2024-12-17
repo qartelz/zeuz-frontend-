@@ -11,7 +11,7 @@ const TradesPage = () => {
   
   const [activeTab, setActiveTab] = useState("Open Positions");
   const [trades, setTrades] = useState([]);
-  console.log(setTrades, "tradesssssssssssssssssssssssssssss ");
+  
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -88,7 +88,7 @@ const TradesPage = () => {
         )}
 
         {activeTab === "Closed Positions" && (
-          <ClosedOrders trades={trades} />
+          <ClosedOrders />
         )}
       </div>
     </>

@@ -4,6 +4,7 @@ import useWebSocketManager from "../utils/WebSocketManager.js";
 
 const StockInfo = ({ selectedData }) => {
   const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+  
 
   const { lastPrice, volume, percentChange } = useWebSocketManager(touchline);
 

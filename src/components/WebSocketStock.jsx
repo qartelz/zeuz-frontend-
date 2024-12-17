@@ -8,7 +8,7 @@ export const WebSocketStock = ({ children, selectedData }) => {
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const broadcast_token= authData?.broadcast_token;
 
-  const [lastPrice, setLastPrice] = useState(selectedData?.strike_price || 0  );
+  const [lastPrice, setLastPrice] = useState(selectedData?.strike_price || "0.00"  );
   const [volume, setVolume] = useState("0.00");
   const [percentChange, setPercentChange] = useState("0.00");
 
@@ -26,7 +26,7 @@ export const WebSocketStock = ({ children, selectedData }) => {
         t: "c",
         uid: "KE0070",
         actid: "KE0070",
-        susertoken: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MTcyNjMxLCJleHAiOjE3MzQyMjI2MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MTcyNjMxNzI0LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.K2v9XnfeFnqPt0mNXvqUDlGpS6B5dap38IzuQt7vVfU",
+        susertoken: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NDU3MjM5LCJleHAiOjE3MzQ0ODE4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NDU3MjM5OTY4LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.3vXZqD16ZHDdfzd5HsFrPVo3lF4leCahAqW-CoLqL-g",
         source: "API",
       };
 

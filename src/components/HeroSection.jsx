@@ -123,7 +123,7 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
                  
                     <button
                     onClick={navigateToPractice}
-                     className="mt-4 px-6 py-2 bg-black text-white rounded-lg font-semibold transition-transform duration-400 hover:scale-105">
+                     className="mt-4 px-6 mb-4 py-2 bg-black text-white rounded-lg font-semibold transition-transform duration-400 hover:scale-105">
                       Start a New Trade
                     </button>
                 

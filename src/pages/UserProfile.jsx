@@ -17,7 +17,7 @@ export default function UserProfile() {
 
   const [totalProfitLoss, setTotalProfitLoss] = useState(null);
   const [totalAvbl, setTotalAvbl] = useState(null);
-  const [totalInvested, setTotalInvested] = useState(null);
+  const [totalInvested, setTotalInvested] = useState("0");
   console.log(totalInvested, "setTotalInvested");
 
   useEffect(() => {
@@ -129,10 +129,10 @@ export default function UserProfile() {
 
         {/* Profile Image */}
         <div className="flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center mb-4">
-            {/* Placeholder for user profile image SVG */}
+          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-gray-300 flex items-center justify-center mb-4">
+          
             <svg
-              className="w-16 h-16 text-gray-500"
+              className="w-16 h-16 md:w-16 md:h-16 text-gray-500"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -141,7 +141,7 @@ export default function UserProfile() {
           </div>
 
           {/* User Details */}
-          <h2 className="text-2xl font-semibold mb-2">{name || "User Name"}</h2>
+          <h2 className="text-2xl font-bold mb-2">{name || "User Name"}</h2>
         
           <div className="flex items-center justify-between max-w-md mb-8">
         {/* Editable Paragraph */}
@@ -211,7 +211,7 @@ export default function UserProfile() {
   amount={
     totalAvbl !== null && totalAvbl !== undefined
       ? Number(totalAvbl).toFixed(2).toLocaleString()
-      : "Loading..."
+      : "0"
   }
 />
 
@@ -219,9 +219,10 @@ export default function UserProfile() {
                 <InfoBox
                   title="TOTAL BEETLE"
                   subtitle="Invested"
-                  amount={totalInvested}
+                  amount={totalInvested} 
                   percentage="5"
                 />
+
                 <InfoBox
                   title="BEETLE"
                   subtitle="P/L"
