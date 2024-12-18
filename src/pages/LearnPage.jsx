@@ -12,6 +12,8 @@ import { WebSocketStock } from "../components/WebSocketStock";
 // import { WebSocketStock } from "../components/WebSocketStock";
 
 const LearnPage = () => {
+
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const [chartData, setChartData] = useState([]);
   console.log(chartData);
 
@@ -70,11 +72,11 @@ const LearnPage = () => {
     
     const getApiEndpoint = () => {
       if (heading === "Equity Trading") {
-        return "http://127.0.0.1:8000/instrument/search/?exchange=NSE";
+        return `${baseUrl}/instrument/search/?exchange=NSE`;
       } else if (heading === "Futures Trading") {
-        return "http://127.0.0.1:8000/instrument/search/?exchange=NFO&segment=FUT";
+        return `${baseUrl}/instrument/search/?exchange=NFO&segment=FUT`;
       } else if (heading === "Options Trading") {
-        return "http://127.0.0.1:8000/instrument/search-options/?exchange=NFO&segment=OPT";
+        return `${baseUrl}/instrument/search-options/?exchange=NFO&segment=OPT`;
       }
       return null;
     };
@@ -125,7 +127,7 @@ const LearnPage = () => {
   };
 
   return (
-    <div className="p-4 text-gray-800 min-h-screen">
+    <div className="p-4 text-gray-800 min-h-screen font-poppins">
       <Navbar />
 
       <div className="flex items-center gap-2 px-10 py-5">

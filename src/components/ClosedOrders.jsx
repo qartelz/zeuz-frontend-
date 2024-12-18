@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 
 const ClosedOrders = () => {
-
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
@@ -10,13 +10,12 @@ const ClosedOrders = () => {
   const [visibleTrades, setVisibleTrades] = useState(100);
   const containerRef = useRef(null);
 
- 
   const [trades, setTrades] = useState([]);
 
   const fetchTrades = async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/trades/closed-trades/",
+        `${baseUrl}/trades/closed-trades/`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -26,14 +25,13 @@ const ClosedOrders = () => {
 
       if (response.data && Array.isArray(response.data)) {
         setTrades(response.data);
-        console.log(response,"the trade response")
+        console.log(response, "the trade response");
       } else {
         console.error("Unexpected response format:", response.data);
       }
     } catch (error) {
       console.error("Error fetching trades:", error);
     }
-    
   };
   useEffect(() => {
     fetchTrades();
@@ -44,8 +42,8 @@ const ClosedOrders = () => {
     const profitLoss = parseFloat(trade.profit_loss);
     return acc + (isNaN(profitLoss) ? 0 : profitLoss);
   }, 0);
- 
-  console.log(trades,"the closedwwwwwwwwwwwwwwwwwwwwww  trades")
+
+  console.log(trades, "the closedwwwwwwwwwwwwwwwwwwwwww  trades");
 
   // Calculate total investment, current value, total P&L, and average P&L
   const totalInvestment = trades.reduce(
@@ -53,16 +51,12 @@ const ClosedOrders = () => {
     0
   );
 
-// const totalPnL = trades.reduce((sum, trade) => sum + trade.profit_loss, 0);
-
- 
+  // const totalPnL = trades.reduce((sum, trade) => sum + trade.profit_loss, 0);
 
   const calculateProfit = (trade) => {
     const profit = (trade.exit_price - trade.avg_price) * trade.sell_quantity;
     return profit;
   };
-
-  
 
   const handleScroll = () => {
     if (
@@ -88,54 +82,50 @@ const ClosedOrders = () => {
 
   return (
     <div className="max-w-5xl mx-auto mt-8 p-0 md:p-4">
-     
       {trades.length > 0 ? (
-
-        
         <div className="overflow-x-auto">
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
+            <div className="flex flex-wrap justify-between items-center">
+              <div className="flex flex-col text-center">
+                <span className="text-sm font-bold text-gray-500">
+                  Total Closed Positions
+                </span>
+                <span className="text-lg font-semibold text-gray-800">
+                  {trades.length}
+                </span>
+              </div>
+              <div className="flex flex-col text-center">
+                <span className="text-sm font-bold text-gray-500">
+                  Total Investment
+                </span>
+                <span className="text-lg font-semibold text-gray-800">
+                  ₹{totalInvestment.toFixed(2)}
+                </span>
+              </div>
 
-<div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
-        <div className="flex flex-wrap justify-between items-center">
-          <div className="flex flex-col text-center">
-            <span className="text-sm font-bold text-gray-500">
-             Total Closed Positions
-            </span>
-            <span className="text-lg font-semibold text-gray-800">
-              {trades.length}
-             
-            </span>
+              <div className="flex flex-col text-center">
+                <span className="text-sm font-bold text-gray-500">
+                  Total P&L
+                </span>
+                <span
+                  className={`text-lg font-semibold ${
+                    totalPnL > 0
+                      ? "text-green-600"
+                      : totalPnL < 0
+                      ? "text-red-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  ₹{totalPnL.toFixed(2)}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col text-center">
-            <span className="text-sm font-bold text-gray-500">
-              Total Investment
-            </span>
-            <span className="text-lg font-semibold text-gray-800">
-              ₹{totalInvestment.toFixed(2)}
-            </span>
-          </div>
-        
-          <div className="flex flex-col text-center">
-            <span className="text-sm font-bold text-gray-500">Total P&L</span>
-            <span
-              className={`text-lg font-semibold ${
-                totalPnL > 0
-                  ? "text-green-600"
-                  : totalPnL < 0
-                  ? "text-red-600"
-                  : "text-gray-500"
-              }`}
-            >
-              ₹{totalPnL}
-            </span>
-          </div>
-        </div>
-      </div>
-          
+
           <div className="mb-4">
             <div className="grid grid-cols-7 text-center gap-4 text-sm bg-gray-100 px-4 py-2 font-semibold text-gray-800">
               <div>Stock Name</div>
               <div>Order Type</div>
-              {/* <div>Trade Type</div> */}
               <div>Entry Price</div>
               <div>Closing Price</div>
               <div>Quantity</div>
@@ -145,13 +135,12 @@ const ClosedOrders = () => {
             </div>
           </div>
 
-          {/* Scrollable Mapped Trades Data */}
           <div
             ref={containerRef}
             className="max-h-96 overflow-y-auto border text-center border-gray-300 rounded-lg"
           >
             {trades.slice(0, visibleTrades).map((trade, index) => {
-              const profit = calculateProfit(trade); // Assuming you have a profit calculation logic
+              const profit = calculateProfit(trade);
 
               return (
                 <div
@@ -162,11 +151,10 @@ const ClosedOrders = () => {
                     {trade.display_name || "N/A"}
                   </div>
                   <div className="text-xs md:text-lg text-gray-800">
-                    {trade.product_type || "N/A"}
+                    {trade.product_type.charAt(0).toUpperCase() +
+                      trade.product_type.slice(1) || "N/A"}
                   </div>
-                  {/* <div className="text-xs md:text-lg text-gray-800">
-                    {trade.trade_type || "N/A"}
-                  </div> */}
+
                   <div className="text-xs md:text-lg text-gray-800">
                     {trade.avg_price.toFixed(2)}
                   </div>
@@ -176,7 +164,7 @@ const ClosedOrders = () => {
                   <div className="text-xs md:text-lg text-gray-800">
                     {trade.sell_quantity}
                   </div>
-                  
+
                   <div
                     className={`text-xs md:text-lg  font-semibold ${
                       trade.profit_loss > 0
@@ -186,10 +174,16 @@ const ClosedOrders = () => {
                         : "text-gray-500"
                     }`}
                   >
-                    {trade.profit_loss}
+                    {parseFloat(trade.profit_loss).toFixed(2)}
                   </div>
-                  <div className="text-xs  md:text-lg font-medium text-gray-800">
-                  {new Date(trade.sell_date).toLocaleString()}
+                  <div className="text-xs  md:text-md font-medium text-gray-800">
+                    {new Date(trade.sell_date).toLocaleString("en-IN", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                 </div>
               );

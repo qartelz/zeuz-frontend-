@@ -8,6 +8,7 @@ import axios from 'axios';
 
 
 const DashboardPage = () => {
+  const baseUrl = process.env.REACT_APP_BASE_URL;
 
   const { name} = useSelector((state) => state.auth);
   
@@ -26,7 +27,7 @@ const DashboardPage = () => {
     const fetchOpenOrders = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/trades/trades/",
+          `${baseUrl}/trades/trades/`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -59,7 +60,7 @@ const DashboardPage = () => {
 
   
   return (
-    <div >
+    <div className='font-poppins' >
      
     
         <Navbar/>

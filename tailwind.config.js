@@ -11,6 +11,8 @@ module.exports = {
         'poppins': ['Poppins', 'sans-serif'],
         'nunito-sans': ['Nunito Sans', 'sans-serif'],
         'oswald': ['Oswald', 'sans-serif'],
+        'poppins': ['Montserrat', 'serif'],
+
 
 
        

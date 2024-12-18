@@ -7,6 +7,7 @@ import axios from "axios";
 
 
 const TradesPage = () => {
+  const baseUrl = process.env.REACT_APP_BASE_URL;
 
   
   const [activeTab, setActiveTab] = useState("Open Positions");
@@ -21,7 +22,7 @@ const TradesPage = () => {
     const fetchTrades = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/trades/trades/",
+          `${baseUrl}/trades/trades/`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -58,7 +59,7 @@ const TradesPage = () => {
     <>
       <Navbar />
 
-      <div className="max-w-5xl mx-auto mt-8 p-4 min-h-screen">
+      <div className="max-w-5xl mx-auto mt-8 p-4 min-h-screen font-poppins">
         <div className="flex items-center w-fit justify-start border rounded-full px-2 py-1 mb-8">
           <button
             className={`px-4 py-2 rounded-full ${

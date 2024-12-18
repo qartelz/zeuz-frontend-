@@ -7,6 +7,8 @@ import axios from "axios";
 
 const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
 
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+
   
 
   const authDataString = localStorage.getItem("authData");
@@ -16,27 +18,6 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
   const location = useLocation();
  
 
-
-  // Memoized function to update PnL for a specific trade
-  // const handlePnLUpdate = useCallback((pnl, tradeId) => {
-  //   setPnlMap((prevMap) => {
-  //     const newMap = { ...prevMap, [tradeId]: pnl };
-  //     return newMap;
-  //   });
-  // }, []);
-
-  // Calculate the total PnL dynamically
-  // const totalPnL = Object.values(pnlMap).reduce((sum, pnl) =>   pnl +sum, 0);
-
-
-  // const [totalPnL, setTotalPnL] = useState(0);
-  //  const handlePnLUpdate = useCallback((newPnL, tradeId) =>
-  //   { setTotalPnL((prevTotalPnL) => 
-  //     {  const updatedTrades = trades.map((trade) => 
-  //       trade.id === tradeId ? { ...trade, pnl: newPnL } : trade );
-  //        const newTotalPnL = 
-  //        updatedTrades.reduce( (sum, trade) => sum + (trade.pnl || 0), 0 );
-  //         return newTotalPnL; }); }, [trades]);
 
   const [pnlValues, setPnLValues] = useState({});
    const [totalPnL, setTotalPnL] = useState(0);
@@ -79,7 +60,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
     const fetchProfitLoss = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/account/trade-summary/",
+          `${baseUrl}/account/trade-summary/`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,

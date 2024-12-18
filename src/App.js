@@ -17,10 +17,11 @@ import { WebSocketProvider } from "./utils/WebSocketContext";
 
 function App() {
   return (  
+    
 
     <WebSocketProvider>
   
-        <div className="relative overflow-hidden bg-slate-50">
+        <div className="relative overflow-hidden bg-slate-50 ">
           <div className="absolute inset-0 z-0"></div>
           <div className="absolute scale-110 z-10 w-full h-full">
             <BgSvg />

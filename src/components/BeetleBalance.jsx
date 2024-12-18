@@ -4,6 +4,8 @@ import CoinSvg from '../assets/svg/CoinSvg';
 import axios from "axios";
 
 const BeetleBalance = () => {
+
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
@@ -16,7 +18,7 @@ const BeetleBalance = () => {
     const fetchProfitLoss = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/account/trade-summary/", 
+          `${process.env.REACT_APP_BASE_URL}/account/trade-summary/`, 
           {
             headers: {
               Authorization: `Bearer ${accessToken}`, 

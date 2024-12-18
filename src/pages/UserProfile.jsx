@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { Edit, Check } from "lucide-react";
 
 export default function UserProfile() {
+  const baseUrl = process.env.REACT_APP_BASE_URL;
 
   const { name} = useSelector((state) => state.auth);
   const authDataString = localStorage.getItem("authData");
@@ -24,7 +25,7 @@ export default function UserProfile() {
     const fetchProfitLoss = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/account/trade-summary/",
+          `${baseUrl}/account/trade-summary/`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -122,7 +123,7 @@ export default function UserProfile() {
     <main>
       <Navbar />
 
-      <div className="flex flex-col items-center p-8  min-h-screen">
+      <div className="flex flex-col font-poppins items-center p-8  min-h-screen">
         <h1 className="text-xl font-bold text-[#026E78] self-start mb-8">
           My Profile
         </h1>

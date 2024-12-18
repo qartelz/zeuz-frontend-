@@ -3,13 +3,14 @@ import axios from "axios";
 
 // Load initial state from localStorage
 const persistedAuthData = JSON.parse(localStorage.getItem("authData")) || {};
-
+ const baseUrl = process.env.REACT_APP_BASE_URL;
+ 
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/account/login/",
+        `${baseUrl}/account/login/`,
         { email, password }
       );
       console.log("Login Successful:", response.data);

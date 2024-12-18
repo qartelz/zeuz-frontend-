@@ -48,14 +48,14 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="flex justify-between items-center px-10 py-4 border-b-2 bg-transparent text-black relative">
+    <nav className="flex justify-between items-center px-10 py-3 border-b-2 bg-transparent text-black relative">
       {/* Left side: Logo */}
       <div className="flex items-center space-x-10">
         {/* Logo */}
         <LogoSvg />
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden md:flex space-x-8 text-lg">
+        <ul className="hidden md:flex space-x-8 text-lg font-poppins">
           {navLinks.map((nav) => (
             <li key={nav.name}>
               <NavLink
@@ -75,7 +75,7 @@ export default function Navbar() {
         </ul>
       </div>
 
-      <div className="hidden md:flex items-center space-x-4">
+      <div className="hidden md:flex items-center space-x-4 font-poppins">
         <div className="relative" ref={dropdownRef}>
           <div
             className="flex items-center space-x-2 cursor-pointer"

@@ -12,6 +12,8 @@ import { useWebSocket } from "../utils/WebSocketContext";
 
 const BuySellPanel = ({ selectedData, initialIsBuy }) => {
 
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+
   const { tokenPrices, sendTouchlineRequest } = useWebSocket();
 
   const touchline = useMemo(
@@ -71,6 +73,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   const [isDelivery, setIsDelivery] = useState(true);
 
   const [quantity, setQuantity] = useState(selectedData.lot_size);
+
   const handleIncrease = () => {
     const lotSize = selectedData?.lot_size || 1;
     setQuantity((prev) => prev + lotSize);
@@ -130,7 +133,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `http://127.0.0.1:8000/account/get-beetle-coins/?email=${email}`
+            `${process.env.REACT_APP_BASE_URL}/account/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -179,9 +182,9 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
 
     const apiUrl =
       selectedData.exchange === "NSE"
-        ? "http://127.0.0.1:8000/trades/create-trades/"
+        ? `${baseUrl}/trades/create-trades/`
         : selectedData.exchange === "NFO"
-        ? "http://127.0.0.1:8000/trades/create-futures/"
+        ? `${baseUrl}/trades/create-futures/`
         : null;
 
     if (!apiUrl) {
@@ -286,7 +289,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
         </div>
       )}
 
-      {/* Blurred Background Wrapper */}
+  
       <div className=" p-4 bg-white/70 backdrop-blur-md rounded-xl space-y-4 shadow-md">
         <div className="flex items-center space-x-4 whitespace-nowrap">
           <BeetleBalance />

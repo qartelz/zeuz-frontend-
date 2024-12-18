@@ -12,6 +12,7 @@ import useWebSocketManager from "../utils/WebSocketManager";
 import { useWebSocket } from "../utils/WebSocketContext";
 
 const BuySellSub = ({
+
   selectedData,
   selectedTrade,
   onClose,
@@ -21,6 +22,8 @@ const BuySellSub = ({
   productType,
   quantity
 }) => {
+
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const [margin, setMargin] = useState("0.00");
   const marginValue = parseFloat(margin);
   // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
@@ -98,19 +101,61 @@ console.log(productType,"the product type")
   
   const [quantitys, setQuantitys] = useState(quantity);
   console.log(quantity,"the quantiqqqqqqqqqqqqqqqqqqqq")
-  
 
-  const handleIncrease = () => setQuantitys((prev) => prev + 1);
-  const handleDecrease = () => setQuantitys((prev) => Math.max(1, prev - 1));
-  const handleInputChange = (e) => {
-    const value = e.target.value.replace(/^0+/, "");
-    if (value === "") {
-      setQuantitys("");
-    } else {
-      const parsedValue = parseInt(value, 10);
-      if (!isNaN(parsedValue)) {
-        setQuantitys(parsedValue);
+  const lotSize = selectedData?.lot_size || 1;
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleIncrease = () => {
+    
+    setQuantitys((prev) => {
+      if (prev + lotSize > quantity) {
+        setErrorMessage("Maximum quantity limit reached.");
+        setTimeout(() => setErrorMessage(""), 3000);
+        return prev; // Prevent further increase
       }
+      setErrorMessage(""); // Clear the error message
+      return prev + lotSize; // Increase by lot size
+    });
+  };
+  
+  const handleDecrease = () => {
+    
+    setErrorMessage("");
+    setQuantitys((prev) => Math.max(lotSize, prev - lotSize));
+  };
+
+  // const handleInputChange = (e) => {
+  //   const value = e.target.value.replace(/^0+/, "");
+  //   if (value === "") {
+  //     setQuantitys("");
+  //   } else {
+  //     const parsedValue = parseInt(value, 10);
+  //     if (!isNaN(parsedValue)) {
+  //       setQuantitys(parsedValue);
+  //     }
+  //   }
+  // };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value.replace(/^0+/, ""); // Remove leading zeros
+
+    if (value === "") {
+      setQuantitys(""); // Clear quantity if input is empty
+      setErrorMessage(""); // Clear error message
+    } else {
+      const parsedValue = parseInt(value, 10); // Parse the input value to an integer
+
+      if (!isNaN(parsedValue)) {
+        if (parsedValue > quantity) {
+          setErrorMessage("Maximum quantity limit reached.");
+          setTimeout(() => setErrorMessage(""), 3000);
+          setQuantitys(quantity); // Reset to max quantity if exceeded
+        } else {
+          setErrorMessage(""); // Clear error message if input is valid
+          setQuantitys(parsedValue); // Update quantity with valid input
+        }
+      }
+
     }
   };
 
@@ -128,7 +173,7 @@ console.log(productType,"the product type")
       const fetchBeetleCoins = async () => {
         try {
           const response = await fetch(
-            `http://127.0.0.1:8000/get-beetle-coins/?email=${email}`
+            `${baseUrl}/get-beetle-coins/?email=${email}`
           );
           const data = await response.json();
           setBeetleCoins(data);
@@ -154,7 +199,7 @@ console.log(productType,"the product type")
       trading_symbol: selectedData.trading_symbol || "",
       series: selectedData.series || "EQ",
       lot_size: selectedData.lot_size || 0,
-      quantity: quantity || 0,
+      quantity: quantitys || 0,
       display_name: selectedData.display_name || "",
       company_name: selectedData.company_name || "",
       expiry_date: selectedData.expiry_date || null,
@@ -176,9 +221,9 @@ console.log(productType,"the product type")
 
     const apiUrl =
       selectedData.exchange === "NSE"
-        ? "http://127.0.0.1:8000/trades/create-trades/"
+        ? `${baseUrl}/trades/create-trades/`
         : selectedData.exchange === "NFO"
-        ? "http://127.0.0.1:8000/trades/create-futures/"
+        ? `${baseUrl}/trades/create-futures/`
         : null;
 
     if (!apiUrl) {
@@ -250,8 +295,7 @@ console.log(productType,"the product type")
               user_id: "KE0070",
               exchange: selectedData.exchange,
               trading_symbol: selectedData.trading_symbol,
-              price:
-                selectedOrderType === "Market Order" ? tokenData.lastPrice : limitPrice,
+              price: selectedOrderType === "Market Order" ? tokenData.lastPrice : limitPrice,
               quantity: quantitys,
               price_type: priceType,
               product_type: isDelivery ? "M" : "I",
@@ -284,15 +328,7 @@ console.log(productType,"the product type")
     console.log(fetchOrderMargin, "the order marginssssss");
 
     fetchOrderMargin();
-  }, [
-    tokenData.lastPrice,
-    quantity,
-    isBuy,
-    isDelivery,
-    selectedOrderType,
-    priceType,
-    limitPrice,
-  ]);
+  }, [tokenData.lastPrice, quantitys,isBuy,isDelivery,selectedOrderType,priceType,limitPrice  ]);
 
   return (
     <div className=" bg-transparent rounded-md space-y-4 relative pt-16   px-10 ">
@@ -368,6 +404,7 @@ console.log(productType,"the product type")
       <div className="space-y-2">
         <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
           <span className="mr-4">Quantity:</span>
+          
           <MinusIcon
             onClick={handleDecrease}
             className="w-4 h-4 cursor-pointer"
@@ -385,7 +422,13 @@ console.log(productType,"the product type")
               className="w-4 h-4 cursor-pointer"
             />
           </div>
+          
         </div>
+        <div style={{ minHeight: "15px" }}> {/* Reserve space for error message */}
+        {errorMessage && <p className="text-[10px] font-medium" style={{ color: "red" }}>{errorMessage}</p>}
+      </div>
+        
+       
 
         <div className="relative border rounded-md p-3 bg-white w-64 h-[100px]">
           {/*Market Limit Buttons */}

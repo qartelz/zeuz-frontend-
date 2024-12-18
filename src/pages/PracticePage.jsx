@@ -45,7 +45,7 @@ const PracticePage = () => {
   };
 
   return (
-    <div className="h-screen">
+    <div className="h-screen font-poppins">
       <Navbar />
       <div className="flex flex-row h-screen items-center justify-between">
         <div className="flex  items-center h-screen">
@@ -54,7 +54,7 @@ const PracticePage = () => {
 
         <div className="flex flex-col   w-full  p-4 md:p-8">
           <h1 className="text-xl md:text-4xl w-full font-bold">
-            Start a New Trade
+            Start a New Trade.
           </h1>
           <h2 className="text-lg md:text-lg text-gray-700">
             Choose a trade type to learn and practice.
