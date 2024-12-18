@@ -1,18 +1,65 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 // import { useWebSocketStock } from "./WebSocketStock.jsx";
 import useWebSocketManager from "../utils/WebSocketManager.js";
+import { useWebSocket } from "../utils/WebSocketContext.js";
 
 const StockInfo = ({ selectedData }) => {
-  const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+  // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+  const { tokenPrices, sendTouchlineRequest } = useWebSocket();
+
+  const touchline = useMemo(
+    () => `${selectedData.exchange}|${selectedData.token_id}`,
+    [selectedData.exchange, selectedData.token_id]
+  );
+
+  const tokenData = useMemo(
+    () =>
+      tokenPrices[touchline] || {
+        lastPrice: "0.00",
+        volume: "0.00",
+        percentChange: "0.00",
+      },
+    [tokenPrices, touchline]
+  );
+  useEffect(() => {
+    sendTouchlineRequest(touchline);
+  }, [touchline, sendTouchlineRequest, tokenPrices]);
+
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
+
+  useEffect(() => {
+    sendTouchlineRequest(touchline);
+
+    const checkDataTimer = setInterval(() => {
+      if (tokenData.lastPrice === "0.00") {
+        sendTouchlineRequest(touchline);
+        setConnectionAttempts((prev) => prev + 1);
+        console.log(
+          `Retry touchline request for ${touchline}. Attempt: ${
+            connectionAttempts + 1
+          }`
+        );
+      } else {
+        clearInterval(checkDataTimer);
+      }
+    }, 10);
+
+    return () => clearInterval(checkDataTimer);
+  }, [
+    touchline,
+    sendTouchlineRequest,
+    tokenData.tokenData,
+    connectionAttempts,
+  ]);
   
 
-  const { lastPrice, volume, percentChange } = useWebSocketManager(touchline);
+  // const { lastPrice, volume, percentChange } = useWebSocketManager(touchline);
 
   const data = [
-    { value: `${percentChange}%`, label: "24h Change" },
+    { value: `${tokenData.percentChange}%`, label: "24h Change" },
     // { value: "+1.25%", label: "24h High" },
     // { value: "+1.25%", label: "24h Low" },
-    { value: volume, label: "Market Volume" },
+    { value: tokenData.volume, label: "Market Volume" },
   ];
 
   return (
@@ -27,7 +74,7 @@ const StockInfo = ({ selectedData }) => {
 
       <div className="flex text-xs md:text-lg flex-wrap items-center space-x-4 space-y-2">
         <div className="text-left whitespace-nowrap">
-          <p className=" font-bold">{lastPrice}</p>
+          <p className=" font-bold">{tokenData.lastPrice}</p>
           <p className=" text-gray-400">Last Traded Price</p>
         </div>
       </div>

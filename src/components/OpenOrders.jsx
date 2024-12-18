@@ -7,11 +7,14 @@ import axios from "axios";
 
 const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
 
+  
+
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
   const location = useLocation();
+ 
 
 
   // Memoized function to update PnL for a specific trade
@@ -140,8 +143,10 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
             } 
 
             {displayedTrades.map((trade) => (
+              
               <TradeCard
                 key={trade.id || trade.token_id}
+                
                 trade={trade}
                 onPnLUpdate={(newPnL) => handlePnLUpdate(newPnL, trade.id)}
                 onOpenModal={handleOpenModal}

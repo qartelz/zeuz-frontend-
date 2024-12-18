@@ -1,5 +1,5 @@
 // BuySellSub.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   ChevronDownIcon,
   MinusIcon,
@@ -9,6 +9,7 @@ import BeetleBalance from "./BeetleBalance";
 import { useWebSocketTrade } from "./WebSocketTrade";
 import Alert from "@mui/material/Alert";
 import useWebSocketManager from "../utils/WebSocketManager";
+import { useWebSocket } from "../utils/WebSocketContext";
 
 const BuySellSub = ({
   selectedData,
@@ -22,8 +23,64 @@ const BuySellSub = ({
 }) => {
   const [margin, setMargin] = useState("0.00");
   const marginValue = parseFloat(margin);
-  const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
-  const { lastPrice } = useWebSocketManager(touchline);
+  // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+  // const { lastPrice } = useWebSocketManager(touchline);
+
+  const { tokenPrices, sendTouchlineRequest } = useWebSocket();
+
+  const touchline = useMemo(
+    () => `${selectedData.exchange}|${selectedData.token_id}`,
+    [selectedData.exchange, selectedData.token_id]
+  );
+
+  const tokenData = useMemo(
+    () =>
+      tokenPrices[touchline] || {
+        lastPrice: "0.00",
+        volume: "0.00",
+        percentChange: "0.00",
+      },
+    [tokenPrices, touchline]
+  );
+  useEffect(() => {
+    sendTouchlineRequest(touchline);
+  }, [touchline, sendTouchlineRequest, tokenPrices]);
+
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
+
+  useEffect(() => {
+    sendTouchlineRequest(touchline);
+
+    const checkDataTimer = setInterval(() => {
+      if (tokenData.lastPrice === "0.00") {
+        sendTouchlineRequest(touchline);
+        setConnectionAttempts((prev) => prev + 1);
+        console.log(
+          `Retry touchline request for ${touchline}. Attempt: ${
+            connectionAttempts + 1
+          }`
+        );
+      } else {
+        clearInterval(checkDataTimer);
+      }
+    }, 10);
+
+    return () => clearInterval(checkDataTimer);
+  }, [
+    touchline,
+    sendTouchlineRequest,
+    tokenData.lastPrice,
+    connectionAttempts,
+  ]);
+  // State for expanding/collapsing card
+  
+
+  // Log to help with debugging
+  useEffect(() => {
+    console.log(`${touchline} - Updated Price: ${tokenData.lastPrice}`);
+  }, [tokenData.lastPrice, touchline]);
+
+
 console.log(productType,"the product type")
 
 
@@ -104,7 +161,7 @@ console.log(productType,"the product type")
       segment: selectedData.segment || "EQUITY",
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: lastPrice || 0,
+      avg_price: tokenData.lastPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
       invested_coin: marginValue,
       trade_status: "incomplete",
@@ -112,7 +169,7 @@ console.log(productType,"the product type")
       margin_required: 4159.25,
       product_type: productType,
     };
-    if (lastPrice <= 0) {
+    if (tokenData.lastPrice <= 0) {
       alert("Cannot execute trade: Invalid price.");
       return;
     }
@@ -163,12 +220,12 @@ console.log(productType,"the product type")
   };
   // const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
 
-  const [limitPrice, setLimitPrice] = useState(lastPrice);
+  const [limitPrice, setLimitPrice] = useState(tokenData.lastPrice);
   useEffect(() => {
     if (selectedOrderType === "Market Order") {
-      setLimitPrice(lastPrice);
+      setLimitPrice(tokenData.lastPrice);
     }
-  }, [lastPrice, selectedOrderType]);
+  }, [tokenData.lastPrice, selectedOrderType]);
 
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
  
@@ -185,7 +242,7 @@ console.log(productType,"the product type")
             method: "POST",
             headers: {
               Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MzI5MDIyLCJleHAiOjE3MzQzOTU0MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MzI5MDIyMjg2LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.o3nNfvEBE46nbpxbjpSES7Mu-3WRu7MRTdfNJrTTIe4",
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NTAwNjkwLCJleHAiOjE3MzQ1NjgyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NTAwNjkwNTcwLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.C5e-pxvXlpFWmF6vzFbRvOqrNI1BfoMrLeQGUA1ftMI",
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -194,7 +251,7 @@ console.log(productType,"the product type")
               exchange: selectedData.exchange,
               trading_symbol: selectedData.trading_symbol,
               price:
-                selectedOrderType === "Market Order" ? lastPrice : limitPrice,
+                selectedOrderType === "Market Order" ? tokenData.lastPrice : limitPrice,
               quantity: quantitys,
               price_type: priceType,
               product_type: isDelivery ? "M" : "I",
@@ -228,7 +285,7 @@ console.log(productType,"the product type")
 
     fetchOrderMargin();
   }, [
-    lastPrice,
+    tokenData.lastPrice,
     quantity,
     isBuy,
     isDelivery,

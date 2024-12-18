@@ -1,71 +1,163 @@
-// WebSocketContext.js
-import React, { createContext, useReducer, useContext, useEffect, useRef } from 'react';
+// // src/context/WebSocketContext.js
 
-const WebSocketStateContext = createContext();
-const WebSocketDispatchContext = createContext();
+// import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
-const initialState = {
-  lastPrice: "0.00",
-  volume: "0.00",
-  percentChange: "0.00",
-  touchline: "",  // Add touchline to state
-};
+// const WebSocketContext = createContext();
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_LAST_PRICE':
-      return { ...state, lastPrice: action.payload };
-    case 'SET_VOLUME':
-      return { ...state, volume: action.payload };
-    case 'SET_PERCENT_CHANGE':
-      return { ...state, percentChange: action.payload };
-    case 'SET_TOUCHLINE':  // Handle touchline update
-      return { ...state, touchline: action.payload };
-    default:
-      return state;
-  }
-};
+// export const WebSocketProvider = ({ children }) => {
+//   const wsRef = useRef(null);
+//   const touchlineTimerRef = useRef(null);
+//   const [lastPrice, setLastPrice] = useState("0.00");
+//   const [volume, setVolume] = useState("0.00");
+//   const [percentChange, setPercentChange] = useState("0.00");
+
+//   const initialData = {
+//     t: "c",
+//     uid: "KE0070",
+//     actid: "KE0070",
+//     susertoken:
+//       "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NTAwNjkwLCJleHAiOjE3MzQ1NjgyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NTAwNjkwNTcwLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.C5e-pxvXlpFWmF6vzFbRvOqrNI1BfoMrLeQGUA1ftMI",
+//     source: "API",
+//   };
+
+//   useEffect(() => {
+//     const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws");
+//     wsRef.current = ws;
+
+//     const touchlineInterval = 5000; // 5 seconds
+//     const heartbeatInterval = 60000; // 60 seconds
+//     let heartbeatTimer;
+
+//     ws.onopen = () => {
+//       ws.send(JSON.stringify(initialData));
+//       console.log("WebSocket connected");
+      
+
+
+//       // Send heartbeat messages
+//       heartbeatTimer = setInterval(() => {
+//         const heartbeatMessage = { t: "h" };
+//         ws.send(JSON.stringify(heartbeatMessage));
+//       }, heartbeatInterval);
+//     };
+
+//     ws.onmessage = (event) => {
+//       try {
+//         const data = JSON.parse(event.data);
+//         if (data.lp) setLastPrice(data.lp);
+//         if (data.v) setVolume(data.v);
+//         if (data.pc) setPercentChange(data.pc);
+//         console.log("Received data from WebSocket:", data);
+//       } catch (error) {
+//         console.error("Error parsing WebSocket message:", error);
+//       }
+//     };
+
+//     ws.onerror = (error) => {
+//       console.error("WebSocket error:", error);
+//     };
+
+//     ws.onclose = () => {
+//       console.log("WebSocket disconnected");
+//       if (heartbeatTimer) clearInterval(heartbeatTimer);
+//     };
+
+//     return () => {
+//       clearInterval(touchlineTimerRef.current);
+//       ws.close();
+//     };
+//   }, []);
+
+//   const sendTouchlineRequest = (touchline) => {
+//     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+//       wsRef.current.send(
+//         JSON.stringify({
+//           t: "t",
+//           k: touchline,
+//         })
+        
+//       );
+//     }
+//     console.log("WebSocket connected with", touchline);
+//   };
+
+//   return (
+//     <WebSocketContext.Provider
+//       value={{
+//         lastPrice,
+//         volume,
+//         percentChange,
+//         sendTouchlineRequest,
+//       }}
+//     >
+//       {children}
+//     </WebSocketContext.Provider>
+//   );
+// };
+
+// export const useWebSocket = () => useContext(WebSocketContext);
+
+
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+
+const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
   const wsRef = useRef(null);
-  const touchlineTimerRef = useRef(null);
+   const touchlineTimerRef = useRef(null);
+  const [tokenPrices, setTokenPrices] = useState({});
+
+  const initialData = {
+    t: "c",
+    uid: "KE0070",
+    actid: "KE0070",
+    susertoken: 
+      "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NTAwNjkwLCJleHAiOjE3MzQ1NjgyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NTAwNjkwNTcwLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.C5e-pxvXlpFWmF6vzFbRvOqrNI1BfoMrLeQGUA1ftMI",
+    source: "API",
+  };
 
   useEffect(() => {
     const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws");
     wsRef.current = ws;
 
+    const heartbeatInterval = 60000;
+    
+    let heartbeatTimer;
+
     ws.onopen = () => {
+      ws.send(JSON.stringify(initialData));
       console.log("WebSocket connected");
 
-      const initialData = {
-        t: "c",
-        uid: "KE0070",
-        actid: "KE0070",
-        susertoken:
-          "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NDExODg4LCJleHAiOjE3MzQ0ODE4MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NDExODg4NTk3LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.GfyW9rGbHQgpPvUps8kPHBk4qMWm0IoxdF4BnDAJ4h4", // Replace with dynamic or environment-based token
-        source: "API",
-      };
-      ws.send(JSON.stringify(initialData));
-
-      const heartbeatInterval = 60000; // 60 seconds
-
-      setInterval(() => {
+    
+      heartbeatTimer = setInterval(() => {
         const heartbeatMessage = { t: "h" };
         ws.send(JSON.stringify(heartbeatMessage));
       }, heartbeatInterval);
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.lp) {
-        dispatch({ type: 'SET_LAST_PRICE', payload: data.lp });
-      }
-      if (data.v) {
-        dispatch({ type: 'SET_VOLUME', payload: data.v });
-      }
-      if (data.pc) {
-        dispatch({ type: 'SET_PERCENT_CHANGE', payload: data.pc });
+      try {
+        const data = JSON.parse(event.data);
+        
+        
+        if (data.t === 'tk' && data.tk) {
+         
+          const key = `${data.e}|${data.tk}`;
+          
+      
+          setTokenPrices(prev => ({
+            ...prev,
+            [key]: {
+              lastPrice: data.lp || '0.00',
+              volume: data.v || '0.00',
+              percentChange: data.pc || '0.00'
+            }
+          }));
+        }
+        
+        console.log("Received data from WebSocket:", data);
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
       }
     };
 
@@ -75,6 +167,7 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.onclose = () => {
       console.log("WebSocket disconnected");
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
     };
 
     return () => {
@@ -82,52 +175,28 @@ export const WebSocketProvider = ({ children }) => {
     };
   }, []);
 
-  useEffect(() => {
+  const sendTouchlineRequest = (touchline) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
           t: "t",
-          k: state.touchline,  // Send updated touchline
+          k: touchline,
         })
       );
-
-      if (touchlineTimerRef.current) {
-        clearInterval(touchlineTimerRef.current);
-      }
-
-      const touchlineInterval = 5000; // 5 seconds
-      touchlineTimerRef.current = setInterval(() => {
-        wsRef.current.send(
-          JSON.stringify({
-            t: "t",
-            k: state.touchline, // dynamic touchline
-          })
-        );
-      }, touchlineInterval);
     }
-  }, [state.touchline]);
+    console.log("WebSocket request sent for", touchline);
+  };
 
   return (
-    <WebSocketStateContext.Provider value={state}>
-      <WebSocketDispatchContext.Provider value={dispatch}>
-        {children}
-      </WebSocketDispatchContext.Provider>
-    </WebSocketStateContext.Provider>
+    <WebSocketContext.Provider
+      value={{
+        tokenPrices,
+        sendTouchlineRequest,
+      }}
+    >
+      {children}
+    </WebSocketContext.Provider>
   );
 };
 
-export const useWebSocketState = () => {
-  const context = useContext(WebSocketStateContext);
-  if (context === undefined) {
-    throw new Error('useWebSocketState must be used within a WebSocketProvider');
-  }
-  return context;
-};
-
-export const useWebSocketDispatch = () => {
-  const context = useContext(WebSocketDispatchContext);
-  if (context === undefined) {
-    throw new Error('useWebSocketDispatch must be used within a WebSocketProvider');
-  }
-  return context;
-};
+export const useWebSocket = () => useContext(WebSocketContext);

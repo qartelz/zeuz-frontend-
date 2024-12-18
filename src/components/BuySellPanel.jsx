@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ChevronDownIcon,
@@ -8,12 +8,62 @@ import {
 import BeetleBalance from "./BeetleBalance";
 import Alert from "@mui/material/Alert";
 import useWebSocketManager from "../utils/WebSocketManager";
+import { useWebSocket } from "../utils/WebSocketContext";
 
 const BuySellPanel = ({ selectedData, initialIsBuy }) => {
-  const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
-  const { lastPrice } = useWebSocketManager(touchline);
+
+  const { tokenPrices, sendTouchlineRequest } = useWebSocket();
+
+  const touchline = useMemo(
+    () => `${selectedData.exchange}|${selectedData.token_id}`,
+    [selectedData.exchange, selectedData.token_id]
+  );
+
+  const tokenData = useMemo(
+    () =>
+      tokenPrices[touchline] || {
+        lastPrice: "0.00",
+        volume: "0.00",
+        percentChange: "0.00",
+      },
+    [tokenPrices, touchline]
+  );
+  useEffect(() => {
+    sendTouchlineRequest(touchline);
+  }, [touchline, sendTouchlineRequest, tokenPrices]);
+
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
+
+  useEffect(() => {
+    sendTouchlineRequest(touchline);
+
+    const checkDataTimer = setInterval(() => {
+      if (tokenData.lastPrice === "0.00") {
+        sendTouchlineRequest(touchline);
+        setConnectionAttempts((prev) => prev + 1);
+        console.log(
+          `Retry touchline request for ${touchline}. Attempt: ${
+            connectionAttempts + 1
+          }`
+        );
+      } else {
+        clearInterval(checkDataTimer);
+      }
+    }, 10);
+
+    return () => clearInterval(checkDataTimer);
+  }, [
+    touchline,
+    sendTouchlineRequest,
+    tokenData.tokenData,
+    connectionAttempts,
+  ]);
+
+
+  // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+  // const { lastPrice } = useWebSocketManager(touchline);
   
-  console.log(lastPrice,"the last pricccce")
+  console.log(tokenData.lastPrice,"the last pricccce")
   const navigate = useNavigate();
 
   const [alertMessage, setAlertMessage] = useState("");
@@ -56,13 +106,13 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
 
   
-  const [limitPrice, setLimitPrice] = useState(lastPrice); 
+  const [limitPrice, setLimitPrice] = useState(tokenData.lastPrice); 
 
   useEffect(() => {
     if (selectedOrderType === "Market Order") {
-      setLimitPrice(lastPrice);
+      setLimitPrice(tokenData.lastPrice);
     }
-  }, [lastPrice, selectedOrderType]); 
+  }, [tokenData.lastPrice, selectedOrderType]); 
   
   
 
@@ -98,7 +148,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       alert("Please select a stock.");
       return;
     }
-    if (lastPrice <= 0) {
+    if (tokenData.lastPrice <= 0) {
       alert("Cannot execute trade: Invalid price.");
       return;
     }
@@ -118,7 +168,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       segment: selectedData.segment || "EQUITY",
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: lastPrice || 0,
+      avg_price: tokenData.lastPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
       invested_coin: marginValue,
       trade_status: "incomplete",
@@ -183,7 +233,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
             method: "POST",
             headers: {
               Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0MzI5MDIyLCJleHAiOjE3MzQzOTU0MDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0MzI5MDIyMjg2LCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.o3nNfvEBE46nbpxbjpSES7Mu-3WRu7MRTdfNJrTTIe4",
+                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NTAwNjkwLCJleHAiOjE3MzQ1NjgyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NTAwNjkwNTcwLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.C5e-pxvXlpFWmF6vzFbRvOqrNI1BfoMrLeQGUA1ftMI",
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -191,7 +241,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
               user_id: "KE0070",
               exchange: selectedData.exchange,
               trading_symbol: selectedData.trading_symbol,
-              price: selectedOrderType === "Market Order" ? lastPrice : limitPrice,
+              price: selectedOrderType === "Market Order" ? tokenData.lastPrice : limitPrice,
               quantity: quantity,
               price_type: priceType,
               product_type: isDelivery ? "M" : "I",
@@ -224,7 +274,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
     console.log(fetchOrderMargin,"the order marginssssss")
 
     fetchOrderMargin();
-  }, [lastPrice, quantity,isBuy,isDelivery,selectedOrderType,priceType,limitPrice  ]);
+  }, [tokenData.lastPrice, quantity,isBuy,isDelivery,selectedOrderType,priceType,limitPrice  ]);
 
   return (
     <div className="px-4 bg-transparent rounded-md space-y-4 relative pt-12">
@@ -258,7 +308,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
         {(isBuy == null || isSell == null) ? (
 
         <div className=" items-center justify-between space-x-2">
-          <span className="text-2xl font-bold">{lastPrice}</span>
+          <span className="text-2xl font-bold">{tokenData.lastPrice}</span>
           <span className="text-sm text-[#7D7D7D]">Last Traded Price</span>
 
           
