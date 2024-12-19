@@ -7,7 +7,6 @@ import {
 } from "@heroicons/react/24/outline";
 import BeetleBalance from "./BeetleBalance";
 import Alert from "@mui/material/Alert";
-import useWebSocketManager from "../utils/WebSocketManager";
 import { useWebSocket } from "../utils/WebSocketContext";
 
 const BuySellPanel = ({ selectedData, initialIsBuy }) => {
@@ -62,8 +61,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   ]);
 
 
-  // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
-  // const { lastPrice } = useWebSocketManager(touchline);
+
   
   console.log(tokenData.lastPrice,"the last pricccce")
   const navigate = useNavigate();
@@ -102,8 +100,10 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
+  const broadcast_token = authData?.broadcast_token;
+  const broadcast_userid = authData?.broadcast_userid;
 
-  // const { lastPrice } = useWebSocketStock();
+
 
   const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
@@ -236,7 +236,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
             method: "POST",
             headers: {
               Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NTAwNjkwLCJleHAiOjE3MzQ1NjgyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NTAwNjkwNTcwLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.C5e-pxvXlpFWmF6vzFbRvOqrNI1BfoMrLeQGUA1ftMI",
+                `${broadcast_token}`,
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -472,6 +472,47 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
             Cancel
           </button>
         </div>
+
+
+
+        {/* <div className="flex text-white text-bold mt-2 space-x-2">
+  <button
+    className={`w-full px-2 py-2 rounded-md ${
+      isBuy ? "bg-green-800" : "bg-[#D83232]"
+    } text-white`}
+    onClick={() => {
+      const confirmMessage = isBuy ? "Are you sure you want to Buy?" : "Are you sure you want to Sell?";
+      if (window.confirm(confirmMessage)) {
+        handleTrade();
+      }
+    }}
+  >
+    {isBuy ? "Buy" : "Sell"}
+  </button>
+
+  <button
+    className="w-full bg-gray-500 py-2 rounded-md"
+    onClick={() => {
+      if (window.confirm("Are you sure you want to cancel?")) {
+        setIsBuy(null);
+        setIsSell(null);
+      }
+    }}
+  >
+    Cancel
+  </button>
+</div> */}
+
+
+
+
+
+
+
+
+
+
+
         </div>
         )}
       </div>

@@ -19,6 +19,7 @@ export default function UserProfile() {
   const [totalProfitLoss, setTotalProfitLoss] = useState(null);
   const [totalAvbl, setTotalAvbl] = useState(null);
   const [totalInvested, setTotalInvested] = useState("0");
+  console.log(totalInvested,"total j")
   console.log(totalInvested, "setTotalInvested");
 
   useEffect(() => {

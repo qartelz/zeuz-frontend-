@@ -38,7 +38,7 @@ const ClosedOrders = () => {
   }, [accessToken]);
 
   const totalPnL = trades.reduce((acc, trade) => {
-    // Convert profit_loss to a number and add it to the accumulator
+  
     const profitLoss = parseFloat(trade.profit_loss);
     return acc + (isNaN(profitLoss) ? 0 : profitLoss);
   }, 0);
@@ -99,7 +99,7 @@ const ClosedOrders = () => {
                   Total Investment
                 </span>
                 <span className="text-lg font-semibold text-gray-800">
-                  ₹{totalInvestment.toFixed(2)}
+                  {totalInvestment.toFixed(2)}
                 </span>
               </div>
 
@@ -116,7 +116,7 @@ const ClosedOrders = () => {
                       : "text-gray-500"
                   }`}
                 >
-                  ₹{totalPnL.toFixed(2)}
+                  {totalPnL.toFixed(2)}
                 </span>
               </div>
             </div>

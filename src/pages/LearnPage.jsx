@@ -8,8 +8,8 @@ import StockInfo from "../components/StockInfo";
 import BuySellPanel from "../components/BuySellPanel";
 import BeetleBalance from "../components/BeetleBalance";
 import OptionChain from "../components/OptionChain";
-import { WebSocketStock } from "../components/WebSocketStock";
-// import { WebSocketStock } from "../components/WebSocketStock";
+
+
 
 const LearnPage = () => {
 
@@ -95,9 +95,8 @@ const LearnPage = () => {
       }
     };
 
-    // Fetch data when the component mounts or when the heading changes
     fetchStocks();
-  }, [heading]);
+  }, [heading,baseUrl]);
 
   const handleSearch = (query) => {
     const filteredResults = stocks.filter((stock) => {
@@ -191,7 +190,7 @@ const LearnPage = () => {
       </div>
 
       {selectedData && !searchQuery && heading !== "Options Trading" && (
-        <WebSocketStock selectedData={selectedData}>
+        
           <div className="grid grid-cols-1 md:grid-cols-[70%_25%] gap-6 p-0 mt-0 md:mt-4 md:p-6">
             <div >
               <StockInfo
@@ -206,7 +205,7 @@ const LearnPage = () => {
               <BuySellPanel selectedData={selectedData} />
             </div>
           </div>
-         </WebSocketStock>
+        
       )}
 
       {heading === "Options Trading" && (

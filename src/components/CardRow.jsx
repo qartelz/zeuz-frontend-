@@ -54,7 +54,7 @@ const CardRow = () => {
           );
         }
       });
-    }, 1000);
+    }, 10000);
 
     return () => clearInterval(checkDataTimer);
   }, [keysToDisplay, sendTouchlineRequest, tokenPrices, connectionAttempts]);

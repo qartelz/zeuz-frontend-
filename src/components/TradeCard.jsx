@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, {  useEffect, useState, useMemo } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { useWebSocket } from "../utils/WebSocketContext";
@@ -41,7 +41,7 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
       } else {
         clearInterval(checkDataTimer);
       }
-    }, 10);
+    }, 1000);
 
     return () => clearInterval(checkDataTimer);
   }, [
@@ -81,7 +81,7 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
     onOpenModal(trade);
   };
 
-  // Log to help with debugging
+  
   useEffect(() => {
     console.log(`${touchline} - Updated Price: ${tokenData.lastPrice}`);
   }, [tokenData.lastPrice, touchline]);
@@ -93,14 +93,17 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
         className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 cursor-pointer"
       >
         <div className="w-full md:w-2/6">
-          <div className="text-lg font-semibold text-gray-700">
+          <div className="text-xl font-semibold text-gray-700">
             {trade.display_name || "N/A"}
           </div>
+
+          <div className="grid grid-cols-2 mt-3 ">
+
 
           <div className="text-left flex justify-v md:justify-normal items-center md:items-start md:flex-col">
             <div className="text-lg font-semibold flex items-center">
               <span className={isPositive ? "text-green-500" : "text-red-500"}>
-                ₹{pnl}
+                {pnl}
               </span>
               <span className="ml-1">
                 {pnl !== "N/A" && isPositive ? (
@@ -110,10 +113,36 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
                 ) : null}
               </span>
             </div>
-            <div className="text-sm font-medium text-gray-500">
+
+            
+            <div className="text-xs font-medium text-gray-500">
               {pnl === "N/A" ? "" : pnl >= 0 ? "Profit" : "Loss"}
             </div>
           </div>
+
+          
+          <div className="text-left flex justify-v md:justify-normal items-center md:items-start md:flex-col">
+            <div className="text-lg font-semibold flex items-center">
+              <span >
+              {tokenData.lastPrice}
+              </span>
+              
+            </div>
+
+            
+            <div className="text-xs font-medium text-gray-500">
+           LTP.
+            </div>
+          </div>
+
+
+
+          </div>
+
+          
+
+
+
         </div>
 
         <div className="flex flex-1 items-center">

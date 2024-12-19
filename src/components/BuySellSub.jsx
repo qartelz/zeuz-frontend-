@@ -6,10 +6,11 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import BeetleBalance from "./BeetleBalance";
-import { useWebSocketTrade } from "./WebSocketTrade";
+
 import Alert from "@mui/material/Alert";
-import useWebSocketManager from "../utils/WebSocketManager";
 import { useWebSocket } from "../utils/WebSocketContext";
+
+
 
 const BuySellSub = ({
 
@@ -23,11 +24,17 @@ const BuySellSub = ({
   quantity
 }) => {
 
+  const authDataString = localStorage.getItem("authData");
+  const authData = authDataString ? JSON.parse(authDataString) : null;
+  const accessToken = authData?.access;
+  const user_id = authData?.user_id;
+  const broadcast_token = authData?.broadcast_token;
+  const broadcast_userid = authData?.broadcast_userid;
+
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [margin, setMargin] = useState("0.00");
   const marginValue = parseFloat(margin);
-  // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
-  // const { lastPrice } = useWebSocketManager(touchline);
+
 
   const { tokenPrices, sendTouchlineRequest } = useWebSocket();
 
@@ -94,10 +101,7 @@ console.log(productType,"the product type")
 
 
 
-  const authDataString = localStorage.getItem("authData");
-  const authData = authDataString ? JSON.parse(authDataString) : null;
-  const accessToken = authData?.access;
-  const user_id = authData?.user_id;
+ 
   
   const [quantitys, setQuantitys] = useState(quantity);
   console.log(quantity,"the quantiqqqqqqqqqqqqqqqqqqqq")
@@ -111,10 +115,10 @@ console.log(productType,"the product type")
       if (prev + lotSize > quantity) {
         setErrorMessage("Maximum quantity limit reached.");
         setTimeout(() => setErrorMessage(""), 3000);
-        return prev; // Prevent further increase
+        return prev; 
       }
-      setErrorMessage(""); // Clear the error message
-      return prev + lotSize; // Increase by lot size
+      setErrorMessage(""); 
+      return prev + lotSize; 
     });
   };
   
@@ -124,35 +128,24 @@ console.log(productType,"the product type")
     setQuantitys((prev) => Math.max(lotSize, prev - lotSize));
   };
 
-  // const handleInputChange = (e) => {
-  //   const value = e.target.value.replace(/^0+/, "");
-  //   if (value === "") {
-  //     setQuantitys("");
-  //   } else {
-  //     const parsedValue = parseInt(value, 10);
-  //     if (!isNaN(parsedValue)) {
-  //       setQuantitys(parsedValue);
-  //     }
-  //   }
-  // };
 
   const handleInputChange = (e) => {
-    const value = e.target.value.replace(/^0+/, ""); // Remove leading zeros
+    const value = e.target.value.replace(/^0+/, ""); 
 
     if (value === "") {
-      setQuantitys(""); // Clear quantity if input is empty
-      setErrorMessage(""); // Clear error message
+      setQuantitys(""); 
+      setErrorMessage(""); 
     } else {
-      const parsedValue = parseInt(value, 10); // Parse the input value to an integer
+      const parsedValue = parseInt(value, 10);
 
       if (!isNaN(parsedValue)) {
         if (parsedValue > quantity) {
           setErrorMessage("Maximum quantity limit reached.");
           setTimeout(() => setErrorMessage(""), 3000);
-          setQuantitys(quantity); // Reset to max quantity if exceeded
+          setQuantitys(quantity); 
         } else {
-          setErrorMessage(""); // Clear error message if input is valid
-          setQuantitys(parsedValue); // Update quantity with valid input
+          setErrorMessage(""); 
+          setQuantitys(parsedValue); 
         }
       }
 
@@ -263,7 +256,7 @@ console.log(productType,"the product type")
       alert("An error occurred. Please try again later.");
     }
   };
-  // const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
+
 
   const [limitPrice, setLimitPrice] = useState(tokenData.lastPrice);
   useEffect(() => {
@@ -286,8 +279,7 @@ console.log(productType,"the product type")
           {
             method: "POST",
             headers: {
-              Authorization:
-                "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIiwiaWF0IjoxNzM0NTAwNjkwLCJleHAiOjE3MzQ1NjgyMDAsInN1YmplY3RfaWQiOiJLRTAwNzAiLCJwYXJ0bmVyX2NoYW5uZWwiOiJBUEkiLCJwYXJ0bmVyX2NvZGUiOiJLRTAwNzAiLCJ1c2VyX2lkIjoiS0UwMDcwIiwibGFzdF92YWxpZGF0ZWRfZGF0ZV90aW1lIjoxNzM0NTAwNjkwNTcwLCJpc3N1ZXJfaWQiOiJodHRwczovL3Nzby5lbnJpY2htb25leS5pbi9vcmcvaXNzdWVyIn0.C5e-pxvXlpFWmF6vzFbRvOqrNI1BfoMrLeQGUA1ftMI",
+              Authorization:`${broadcast_token}`,
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -351,31 +343,7 @@ console.log(productType,"the product type")
         <span>{selectedData?.display_name || "No stock selected"}</span>
       </div>
 
-      {/* <div className="flex items-center justify-between space-x-2">
-        <span className="text-[#7D7D7D] text-xl font-bold">I want to:</span>
-        <div className="flex space-x-2">
-          <button
-            className={`px-8 py-2 rounded-md ${isBuy
-                ? "bg-[#E8FCF1] text-green-500 border font-bold"
-                : "bg-transparent text-[#7D7D7D]"
-              }`}
-            onClick={() => setIsBuy(true)}
-          >
-            Buy
-          </button>
-          <button
-            className={`px-8 py-2 rounded-md ${!isBuy
-                ? "bg-[#E8FCF1] text-red-500 border font-bold"
-                : "bg-transparent text-[#7D7D7D]"
-              }`}
-            onClick={() => setIsBuy(false)}
-          >
-            Sell
-          </button>
-        </div>
-      </div> */}
 
-      {/* Delivery / Intraday Toggle */}
       <div className="flex w-full justify-between items-center mb-4 border p-2 rounded-md bg-white">
         <div className="flex w-full">
           <button
@@ -384,7 +352,7 @@ console.log(productType,"the product type")
                 ? "bg-[#E8FCF1] text-green-500 border font-bold"
                 : "bg-transparent text-[#7D7D7D] border"
             }`}
-            // onClick={() => setIsDelivery(true)}
+          
           >
             Delivery
           </button>
@@ -394,7 +362,6 @@ console.log(productType,"the product type")
                 ? "bg-[#E8FCF1] text-blue-500 border font-bold"
                 : "bg-transparent text-[#7D7D7D] border"
             }`}
-            // onClick={() => setIsDelivery(false)}
           >
             Intraday
           </button>

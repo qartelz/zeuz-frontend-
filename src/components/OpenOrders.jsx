@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
 import BuySellSub from "./BuySellSub";
-import { WebSocketTrade, useWebSocketTrade } from "./WebSocketTrade";
 import TradeCard from "./TradeCard";
 import { useLocation } from 'react-router-dom';
 import axios from "axios";
@@ -116,7 +115,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
                           : "text-gray-500"
                       }`}
                     >
-                      ₹{totalPnL.toFixed(2)}
+                      {totalPnL.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -141,7 +140,7 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
         )}
 
         {modalOpen && selectedTrade && (
-          // <WebSocketTrade selectedTrade={selectedTrade}>
+         
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="bg-white p-6 rounded-md shadow-lg">
                 <BuySellSub
@@ -158,7 +157,6 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
                 />
               </div>
             </div>
-          // </WebSocketTrade>
         )}
       </div>
 

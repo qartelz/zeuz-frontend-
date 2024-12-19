@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-// import { useWebSocketStock } from "./WebSocketStock.jsx";
-import useWebSocketManager from "../utils/WebSocketManager.js";
 import { useWebSocket } from "../utils/WebSocketContext.js";
 
 const StockInfo = ({ selectedData }) => {
-  // const touchline = `${selectedData.exchange}|${selectedData.token_id}`;
+ 
   const { tokenPrices, sendTouchlineRequest } = useWebSocket();
 
   const touchline = useMemo(
@@ -47,13 +45,13 @@ const StockInfo = ({ selectedData }) => {
     return () => clearInterval(checkDataTimer);
   }, [
     touchline,
+    tokenData.lastPrice,
     sendTouchlineRequest,
     tokenData.tokenData,
     connectionAttempts,
   ]);
   
 
-  // const { lastPrice, volume, percentChange } = useWebSocketManager(touchline);
 
   const data = [
     { value: `${tokenData.percentChange}%`, label: "24h Change" },

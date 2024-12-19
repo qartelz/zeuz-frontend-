@@ -22,6 +22,35 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
   const [totalProfitLoss, setTotalProfitLoss] = useState(null);
   const [totalInvested, setTotalInvested] = useState(null);
 
+  const [clsTrades, setClsTrades] = useState([]);
+  console.log(clsTrades,"this i  eheeeee ppppppppppppppppppppppp")
+
+  const fetchTrades = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/trades/closed-trades/`,
+        {
+          headers: { 
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.data && Array.isArray(response.data)) {
+        setClsTrades(response.data);
+        console.log(response, "the trade response");
+      } else {
+        console.error("Unexpected response format:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching trades:", error);
+    }
+  };
+  useEffect(() => {
+    fetchTrades();
+  }, []);
+
+
   useEffect(() => {
     const fetchProfitLoss = async () => {
       try {
@@ -144,7 +173,7 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
 
             <div className="p-4 rounded-lg ">
               <div className="mt-0 flex-col justify-between space-y-4">
-                {/* Total Portfolio */}
+              
                 <div className="flex-1  rounded-lg bg-white border shadow-md w-80 px-6 py-3 flex flex-col ">
                   <p className="text-lg   font-semibold text-[#0E8190]">
                     Total
@@ -153,7 +182,7 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
                     Total Investment
                   </p>
 
-                  {trades.length > 0 ? (
+                  {trades.length > 0 || clsTrades.length > 0  ? (
                     <div className="bg-[#F6FEFF] w-full rounded-md flex items-center p-2">
                       <div className="w-8 h-8 text-white rounded-full flex items-center justify-center mr-4">
                         <BagSvg />
@@ -177,7 +206,7 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
                   <p className="text-2xl mb-4 font-semibold text-black">
                     Profit & Loss
                   </p>
-                  {trades.length > 0 ? (
+                  {trades.length > 0 || clsTrades.length > 0  ? (
                     <div className="bg-[#F6FEFF] w-full rounded-md flex items-center p-2">
                       <div className="w-8 h-8 text-white rounded-full flex items-center justify-center mr-4">
                         <OverallSvg />
