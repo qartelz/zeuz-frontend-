@@ -10,8 +10,11 @@ import axios from "axios";
 import CardRow from "./CardRow";
 import { ReceiptIndianRupee } from "lucide-react";
 
-const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
-  const navigate = useNavigate();
+const HeroSection = ({ username, welcomemsg, question, answers}) => {
+
+
+
+  const navigate = useNavigate()
   const baseUrl = process.env.REACT_APP_BASE_URL;
 
   const authDataString = localStorage.getItem("authData");
@@ -25,7 +28,7 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
   const [clsTrades, setClsTrades] = useState([]);
   console.log(clsTrades,"this i  eheeeee ppppppppppppppppppppppp")
 
-  const fetchTrades = async () => {
+  const fetchClsTrades = async () => {
     try {
       const response = await axios.get(
         `${baseUrl}/trades/closed-trades/`,
@@ -47,8 +50,40 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
     }
   };
   useEffect(() => {
+    fetchClsTrades();
+  }, [accessToken]);
+
+
+  const [trades, setTrades] = useState([]);
+  const fetchTrades = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/trades/trades/`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.data && Array.isArray(response.data)) {
+        setTrades(response.data);
+        console.log(response,"the trade response")
+      } else {
+        console.error("Unexpected response format:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching trades:", error);
+    }
+    
+  };
+  useEffect(() => {
     fetchTrades();
-  }, []);
+  }, [accessToken]);
+
+  const refreshTrades = () => {
+    fetchTrades();
+  };
 
 
   useEffect(() => {
@@ -132,8 +167,8 @@ const HeroSection = ({ username, welcomemsg, question, answers, trades }) => {
             <div className="rounded-tl-none rounded-tr-[70%] rounded-bl-2xl rounded-br-2xl border border-gray-300 bg-[#F6FEFF] shadow-md">
 
               {trades.length > 0 ? (
-                <div className="max-w-4xl">
-                  <OpenOrders trades={trades} maxTrades={4} />
+                <div className="max-w-5xl">
+                  <OpenOrders trades={trades} maxTrades={4} refreshTrades={refreshTrades} />
                   <div className=" text-right">
                     <button
                       onClick={navigateToAllTrades}

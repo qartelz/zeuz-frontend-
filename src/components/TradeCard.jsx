@@ -1,4 +1,4 @@
-import React, {  useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { useWebSocket } from "../utils/WebSocketContext";
@@ -41,7 +41,7 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
       } else {
         clearInterval(checkDataTimer);
       }
-    }, 1000);
+    }, 10000);
 
     return () => clearInterval(checkDataTimer);
   }, [
@@ -60,17 +60,17 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
       : "N/A";
   }, [tokenData.lastPrice, trade.avg_price, trade.quantity]);
 
-  // Determine if PnL is positive
+  
   const isPositive = pnl !== "N/A" && parseFloat(pnl) >= 0;
 
-  // Update parent component with PnL
+  
   useEffect(() => {
     if (pnl !== "N/A") {
       onPnLUpdate(parseFloat(pnl));
     }
   }, [pnl, onPnLUpdate]);
 
-  // State for expanding/collapsing card
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggleExpand = () => {
@@ -81,7 +81,6 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
     onOpenModal(trade);
   };
 
-  
   useEffect(() => {
     console.log(`${touchline} - Updated Price: ${tokenData.lastPrice}`);
   }, [tokenData.lastPrice, touchline]);
@@ -98,56 +97,40 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
           </div>
 
           <div className="grid grid-cols-2 mt-3 ">
+            <div className="text-left flex justify-v md:justify-normal items-center md:items-start md:flex-col">
+              <div className="text-lg font-semibold flex items-center">
+                <span
+                  className={isPositive ? "text-green-500" : "text-red-500"}
+                >
+                  {pnl}
+                </span>
+                <span className="ml-1">
+                  {pnl !== "N/A" && isPositive ? (
+                    <ChevronUp className="w-4 h-4 mr-1 text-green-500" />
+                  ) : pnl !== "N/A" && !isPositive ? (
+                    <ChevronDown className="w-4 h-4 mr-1 text-red-500" />
+                  ) : null}
+                </span>
+              </div>
 
-
-          <div className="text-left flex justify-v md:justify-normal items-center md:items-start md:flex-col">
-            <div className="text-lg font-semibold flex items-center">
-              <span className={isPositive ? "text-green-500" : "text-red-500"}>
-                {pnl}
-              </span>
-              <span className="ml-1">
-                {pnl !== "N/A" && isPositive ? (
-                  <ChevronUp className="w-4 h-4 mr-1 text-green-500" />
-                ) : pnl !== "N/A" && !isPositive ? (
-                  <ChevronDown className="w-4 h-4 mr-1 text-red-500" />
-                ) : null}
-              </span>
-            </div>
-
-            
-            <div className="text-xs font-medium text-gray-500">
-              {pnl === "N/A" ? "" : pnl >= 0 ? "Profit" : "Loss"}
-            </div>
-          </div>
-
-          
-          <div className="text-left flex justify-v md:justify-normal items-center md:items-start md:flex-col">
-            <div className="text-lg font-semibold flex items-center">
-              <span >
-              {tokenData.lastPrice}
-              </span>
-              
-            </div>
-
-            
-            <div className="text-xs font-medium text-gray-500">
-           LTP.
+              <div className="text-xs font-medium text-gray-500">
+                {pnl === "N/A" ? "" : pnl >= 0 ? "Profit" : "Loss"}
+              </div>
             </div>
           </div>
-
-
-
-          </div>
-
-          
-
-
-
         </div>
 
         <div className="flex flex-1 items-center">
-          <div className="flex space-x-2 md:grid grid-cols-5 mt-4 md:mt-0 w-full">
-            <div className="flex flex-col">
+          <div className="flex space-x-2 md:grid text-center grid-cols-6 mt-4 md:mt-0 w-full">
+            <div className="flex flex-col space-y-2">
+              <div className="text-sm font-medium text-gray-500">
+                LTP.
+              </div>
+              <div className="text-xl font-semibold text-gray-500">
+              {tokenData.lastPrice}
+              </div>
+            </div>
+            <div className="flex flex-col space-y-2">
               <div className="text-sm font-medium text-gray-500">
                 Trade Type
               </div>
@@ -155,17 +138,15 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
                 {trade.trade_type}
               </div>
             </div>
-            <div className="flex  flex-col">
-              <div className="text-sm font-medium text-gray-500">
-                Product Type
-              </div>
+            <div className="flex  flex-col space-y-2 ">
+              <div className="text-sm  whitespace-nowrap font-medium text-gray-500">Product Type</div>
               <div className="text-md font-semibold text-gray-800">
                 {trade.product_type.charAt(0).toUpperCase() +
                   trade.product_type.slice(1)}
               </div>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col space-y-2">
               <div className="text-sm font-medium text-gray-500">
                 Avg. Price
               </div>
@@ -174,14 +155,14 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
               </div>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col space-y-2">
               <div className="text-sm font-medium text-gray-500">Quantity</div>
               <div className="text-md font-semibold text-gray-800">
                 {trade.quantity}
               </div>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col space-y-2">
               <div className="text-sm font-medium text-gray-500">Invested</div>
               <div className="text-md font-semibold text-gray-800">
                 {trade.invested_coin.toFixed(2)}

@@ -1,5 +1,6 @@
 // BuySellSub.js
 import React, { useState, useEffect, useMemo } from "react";
+
 import {
   ChevronDownIcon,
   MinusIcon,
@@ -10,10 +11,7 @@ import BeetleBalance from "./BeetleBalance";
 import Alert from "@mui/material/Alert";
 import { useWebSocket } from "../utils/WebSocketContext";
 
-
-
 const BuySellSub = ({
-
   selectedData,
   selectedTrade,
   onClose,
@@ -21,9 +19,8 @@ const BuySellSub = ({
   setModalOpen,
   onTradeSuccess,
   productType,
-  quantity
+  quantity,
 }) => {
-
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
@@ -35,13 +32,13 @@ const BuySellSub = ({
   const [margin, setMargin] = useState("0.00");
   const marginValue = parseFloat(margin);
 
-
   const { tokenPrices, sendTouchlineRequest } = useWebSocket();
 
   const touchline = useMemo(
     () => `${selectedData.exchange}|${selectedData.token_id}`,
     [selectedData.exchange, selectedData.token_id]
   );
+  const [isBuy, setIsBuy] = useState(initialIsBuy);
 
   const tokenData = useMemo(
     () =>
@@ -82,80 +79,68 @@ const BuySellSub = ({
     tokenData.lastPrice,
     connectionAttempts,
   ]);
-  // State for expanding/collapsing card
-  
 
   // Log to help with debugging
   useEffect(() => {
     console.log(`${touchline} - Updated Price: ${tokenData.lastPrice}`);
   }, [tokenData.lastPrice, touchline]);
 
-
-console.log(productType,"the product type")
-
+  console.log(productType, "the product type");
 
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [isDelivery, setIsDelivery] = useState();
-  console.log(isDelivery,"the devlojhvcxcvbn")
+  console.log(isDelivery, "the devlojhvcxcvbn");
 
-
-
- 
-  
   const [quantitys, setQuantitys] = useState(quantity);
-  console.log(quantity,"the quantiqqqqqqqqqqqqqqqqqqqq")
+  console.log(quantity, "the quantiqqqqqqqqqqqqqqqqqqqq");
 
-  const lotSize = selectedData?.lot_size || 1;
+  const lotSize = selectedTrade?.lot_size || 1;
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleIncrease = () => {
-    
     setQuantitys((prev) => {
-      if (prev + lotSize > quantity) {
-        setErrorMessage("Maximum quantity limit reached.");
-        setTimeout(() => setErrorMessage(""), 3000);
-        return prev; 
+      if (!isBuy && selectedTrade.exchange === "NSE") {
+        if (prev + lotSize > quantity) {
+          setErrorMessage("Maximum quantity limit reached.");
+          setTimeout(() => setErrorMessage(""), 3000);
+          return quantity; // Set the value to quantity if it exceeds
+        }
       }
-      setErrorMessage(""); 
-      return prev + lotSize; 
+      setErrorMessage("");
+      return prev + lotSize;
     });
   };
-  
+
   const handleDecrease = () => {
-    
     setErrorMessage("");
     setQuantitys((prev) => Math.max(lotSize, prev - lotSize));
   };
 
-
   const handleInputChange = (e) => {
-    const value = e.target.value.replace(/^0+/, ""); 
-
+    const value = e.target.value.replace(/^0+/, "");
+  
     if (value === "") {
-      setQuantitys(""); 
-      setErrorMessage(""); 
+      setQuantitys("");
+      setErrorMessage("");
     } else {
       const parsedValue = parseInt(value, 10);
-
+  
       if (!isNaN(parsedValue)) {
-        if (parsedValue > quantity) {
+        if (!isBuy && selectedTrade.exchange === "NSE" && parsedValue > quantity) {
           setErrorMessage("Maximum quantity limit reached.");
           setTimeout(() => setErrorMessage(""), 3000);
-          setQuantitys(quantity); 
+          setQuantitys(quantity);
         } else {
-          setErrorMessage(""); 
-          setQuantitys(parsedValue); 
+          setErrorMessage("");
+          setQuantitys(parsedValue);
         }
       }
-
     }
   };
-
-  const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
   
 
-  const [isBuy, setIsBuy] = useState(initialIsBuy);
+  const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
 
   const [beetleCoins, setBeetleCoins] = useState(null);
 
@@ -237,7 +222,6 @@ console.log(productType,"the product type")
       if (response.ok) {
         const result = await response.json();
         console.log("Trade created successfully:", result);
-       
 
         onTradeSuccess();
         setAlertMessage(result.message);
@@ -245,7 +229,7 @@ console.log(productType,"the product type")
         setTimeout(() => {
           setShowAlert(false);
           setModalOpen(false);
-          onTradeSuccess(); 
+          onTradeSuccess();
         }, 3000);
       } else {
         console.error("Error creating trade:", response.statusText);
@@ -257,7 +241,6 @@ console.log(productType,"the product type")
     }
   };
 
-
   const [limitPrice, setLimitPrice] = useState(tokenData.lastPrice);
   useEffect(() => {
     if (selectedOrderType === "Market Order") {
@@ -266,7 +249,7 @@ console.log(productType,"the product type")
   }, [tokenData.lastPrice, selectedOrderType]);
 
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
- 
+
   console.log(margin, "the narrrrrrrrrrrrrrrrr");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -279,7 +262,7 @@ console.log(productType,"the product type")
           {
             method: "POST",
             headers: {
-              Authorization:`${broadcast_token}`,
+              Authorization: `${broadcast_token}`,
               "user-Id": "KE0070",
               "Content-Type": "application/json",
             },
@@ -287,7 +270,10 @@ console.log(productType,"the product type")
               user_id: "KE0070",
               exchange: selectedData.exchange,
               trading_symbol: selectedData.trading_symbol,
-              price: selectedOrderType === "Market Order" ? tokenData.lastPrice : limitPrice,
+              price:
+                selectedOrderType === "Market Order"
+                  ? tokenData.lastPrice
+                  : limitPrice,
               quantity: quantitys,
               price_type: priceType,
               product_type: isDelivery ? "M" : "I",
@@ -320,7 +306,15 @@ console.log(productType,"the product type")
     console.log(fetchOrderMargin, "the order marginssssss");
 
     fetchOrderMargin();
-  }, [tokenData.lastPrice, quantitys,isBuy,isDelivery,selectedOrderType,priceType,limitPrice  ]);
+  }, [
+    tokenData.lastPrice,
+    quantitys,
+    isBuy,
+    isDelivery,
+    selectedOrderType,
+    priceType,
+    limitPrice,
+  ]);
 
   return (
     <div className=" bg-transparent rounded-md space-y-4 relative pt-16   px-10 ">
@@ -331,18 +325,46 @@ console.log(productType,"the product type")
           </Alert>
         </div>
       )}
-      <div className="flex items-center space-x-4 whitespace-nowrap">
-        <BeetleBalance />
-        {beetleCoins && (
-          <div className="bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
-            <span>Beetle Coins: {beetleCoins.amount}</span>
-          </div>
-        )}
+
+      <div className="flex items-end justify-end space-x-2">
+        <div className="relative flex w-40   h-10  border border-gray-400  rounded-full p-1">
+          <button
+            className={`absolute left-2  h-8 w-16 rounded-full flex items-center justify-center transform transition-transform ${
+              isBuy
+                ? "bg-green-500 translate-x-0"
+                : "bg-red-500 translate-x-[120%]"
+            }`}
+            onClick={() => {
+              setIsBuy(!isBuy); 
+              setQuantitys(quantity); 
+            }}
+            
+          >
+            {isBuy ? (
+              <p className="text-white">Buy</p>
+            ) : (
+              <p className="text-white">Sell</p>
+            )}
+          </button>
+
+          {/* Buy Label */}
+          <span
+            className={`flex-1 text-center text-sm font-bold ${
+              isBuy ? "text-green-500" : "text-gray-500"
+            }`}
+          ></span>
+          {/* Sell Label */}
+          <span
+            className={`flex-1 text-center text-sm font-bold ${
+              !isBuy ? "text-red-500" : "text-gray-500"
+            }`}
+          ></span>
+        </div>
       </div>
+
       <div className="bg-white text-black font-bold text-xl shadow-sm p-2 rounded-md">
         <span>{selectedData?.display_name || "No stock selected"}</span>
       </div>
-
 
       <div className="flex w-full justify-between items-center mb-4 border p-2 rounded-md bg-white">
         <div className="flex w-full">
@@ -352,7 +374,6 @@ console.log(productType,"the product type")
                 ? "bg-[#E8FCF1] text-green-500 border font-bold"
                 : "bg-transparent text-[#7D7D7D] border"
             }`}
-          
           >
             Delivery
           </button>
@@ -371,7 +392,7 @@ console.log(productType,"the product type")
       <div className="space-y-2">
         <div className="flex items-center justify-between bg-white text-[#7D7D7D] border shadow-sm p-2 rounded-md">
           <span className="mr-4">Quantity:</span>
-          
+
           <MinusIcon
             onClick={handleDecrease}
             className="w-4 h-4 cursor-pointer"
@@ -389,13 +410,16 @@ console.log(productType,"the product type")
               className="w-4 h-4 cursor-pointer"
             />
           </div>
-          
         </div>
-        <div style={{ minHeight: "15px" }}> {/* Reserve space for error message */}
-        {errorMessage && <p className="text-[10px] font-medium" style={{ color: "red" }}>{errorMessage}</p>}
-      </div>
-        
-       
+        <div style={{ minHeight: "15px" }}>
+          {" "}
+          {/* Reserve space for error message */}
+          {errorMessage && (
+            <p className="text-[10px] font-medium" style={{ color: "red" }}>
+              {errorMessage}
+            </p>
+          )}
+        </div>
 
         <div className="relative border rounded-md p-3 bg-white w-64 h-[100px]">
           {/*Market Limit Buttons */}

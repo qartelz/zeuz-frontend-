@@ -22,10 +22,17 @@ const ClosedOrders = () => {
           },
         }
       );
-
+  
       if (response.data && Array.isArray(response.data)) {
-        setTrades(response.data);
-        console.log(response, "the trade response");
+        // Sort trades by sell_date in descending order
+        const sortedTrades = response.data.sort((a, b) => {
+          const dateA = new Date(a.sell_date);
+          const dateB = new Date(b.sell_date);
+          return dateB - dateA; // Newer dates first
+        });
+  
+        setTrades(sortedTrades);
+        console.log(response, "the sorted trade response");
       } else {
         console.error("Unexpected response format:", response.data);
       }
