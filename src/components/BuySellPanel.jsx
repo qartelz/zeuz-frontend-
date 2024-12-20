@@ -129,7 +129,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       setTimeout(() => {
         setLmtError("");
       }, 3000);
-      setLimitPrice("0");
+      // setLimitPrice("0");
       return false;
     }
 
@@ -184,6 +184,22 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       alert("Cannot execute trade: Invalid price.");
       return;
     }
+      // Validate price only if it's a Limit Order
+    if (selectedOrderType !== "Market Order") {
+      // Check if the price is valid for Limit Orders
+      if (!validatePrice(limitPrice)) {
+        // If validation fails, stop the trade process
+        return;
+      }
+    }
+
+
+    // if (!validatePrice(limitPrice)) {
+    //   // If validation fails, stop the trade process
+    //   return;
+    // }
+    
+
 
     const tradeData = {
       user: user_id,
@@ -199,7 +215,17 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       segment: selectedData.segment || "EQUITY",
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: tokenData.lastPrice || 0,
+      
+      // avg_price: tokenData.lastPrice || 0,
+
+      avg_price:
+        selectedOrderType === "Market Order"
+          ? tokenData.lastPrice || 0 // Use last price for market orders
+          : limitPrice || 0,
+      
+
+      
+      
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
       invested_coin: marginValue,
       trade_status: "incomplete",
