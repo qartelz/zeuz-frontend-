@@ -11,6 +11,7 @@ import BeetleBalance from "./BeetleBalance";
 import Alert from "@mui/material/Alert";
 import { useWebSocket } from "../utils/WebSocketContext";
 
+
 const BuySellSub = ({
   selectedData,
   selectedTrade,
@@ -98,6 +99,14 @@ const BuySellSub = ({
   const lotSize = selectedTrade?.lot_size || 1;
   const [errorMessage, setErrorMessage] = useState("");
 
+  const isMultipleOf0_05 = (value) => {
+    const scaled = Math.round(parseFloat(value) * 100);
+
+    return scaled % 5 === 0;
+  };
+
+  
+
   const handleIncrease = () => {
     setQuantitys((prev) => {
       if (!isBuy && selectedTrade.exchange === "NSE") {
@@ -116,6 +125,7 @@ const BuySellSub = ({
     setErrorMessage("");
     setQuantitys((prev) => Math.max(lotSize, prev - lotSize));
   };
+  
 
   const handleInputChange = (e) => {
     const value = e.target.value.replace(/^0+/, "");
@@ -163,12 +173,15 @@ const BuySellSub = ({
       fetchBeetleCoins();
     }
   }, []);
+    
 
   const handleTrade = async () => {
     if (!selectedTrade) {
       alert("Please select a stock.");
       return;
     }
+    // Validate price only if it's a Limit Order
+ 
 
     const tradeData = {
       user: user_id,
@@ -184,7 +197,11 @@ const BuySellSub = ({
       segment: selectedData.segment || "EQUITY",
       option_type: selectedData.option_type || null,
       trade_type: isBuy ? "Buy" : "Sell",
-      avg_price: tokenData.lastPrice || 0,
+      // avg_price: tokenData.lastPrice || 0,
+      avg_price:
+        selectedOrderType === "Market Order"
+          ? tokenData.lastPrice || 0 // Use last price for market orders
+          : limitPrice || 0,
       prctype: selectedOrderType === "Market Order" ? "MKT" : "LMT",
       invested_coin: marginValue,
       trade_status: "incomplete",
@@ -314,6 +331,7 @@ const BuySellSub = ({
     selectedOrderType,
     priceType,
     limitPrice,
+    
   ]);
 
   return (

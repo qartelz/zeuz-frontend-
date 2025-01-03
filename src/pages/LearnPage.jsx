@@ -8,14 +8,15 @@ import StockInfo from "../components/StockInfo";
 import BuySellPanel from "../components/BuySellPanel";
 import BeetleBalance from "../components/BeetleBalance";
 import OptionChain from "../components/OptionChain";
-
+import CardRow from "../components/CardRow";
 
 
 const LearnPage = () => {
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [chartData, setChartData] = useState([]);
-  console.log(chartData);
+  
+  console.log(chartData,"fdhgdufgdfjdfjgdujgdbbdfjgdfgdfbdfjghdfgdfg");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +41,7 @@ const LearnPage = () => {
             }),
           }
         );
-        console.log(response);
+        console.log(response,"hhhhhhh");
 
         const result = await response.json();
 
@@ -76,7 +77,7 @@ const LearnPage = () => {
       } else if (heading === "Futures Trading") {
         return `${baseUrl}/instrument/search/?exchange=NFO&segment=FUT`;
       } else if (heading === "Options Trading") {
-        return `${baseUrl}/instrument/search-options/?exchange=NFO&segment=OPT`;
+        return `${baseUrl}/instrument/searchs/?exchange=NFO&segment=OPT`;
       }
       return null;
     };
@@ -128,7 +129,7 @@ const LearnPage = () => {
   return (
     <div className="p-4 text-gray-800 min-h-screen font-poppins">
       <Navbar />
-
+      <CardRow />
       <div className="flex items-center gap-2 px-10 py-5">
         <span>Markets</span>
         <ChevronRightIcon className="h-4 w-4" />
@@ -207,6 +208,25 @@ const LearnPage = () => {
           </div>
         
       )}
+
+  {selectedData && !searchQuery && heading !== "Options Trading" && (
+        
+        <div className="grid grid-cols-1 md:grid-cols-[70%_25%] gap-6 p-0 mt-0 md:mt-4 md:p-6">
+          <div >
+            <StockInfo
+              selectedData={selectedData}
+              stocks={stocks}
+              results={results}
+            />
+            <TradingViewWidget data={chartData} />
+          </div>
+
+          <div>
+            <BuySellPanel selectedData={selectedData} />
+          </div>
+        </div>
+      
+    )}
 
       {heading === "Options Trading" && (
         <div className="grid grid-cols-1 md:grid-cols-[70%_30%] gap-6 p-6">

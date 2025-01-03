@@ -93,14 +93,14 @@ const OpenOrders = ({ trades, maxTrades, refreshTrades }) => {
                       {displayedTrades.length}
                     </span>
                   </div>
-                  <div className="flex flex-col  text-center">
+                  {/* <div className="flex flex-col  text-center">
                     <span className="text-sm font-bold text-gray-500">
                       Total Investment
                     </span>
                     <span className="text-lg font-semibold text-gray-800">
                     {totalInvested}
                     </span>
-                  </div>
+                  </div> */}
                   
                   <div className="flex flex-col text-center">
                     <span className="text-sm font-bold text-gray-500">

@@ -34,7 +34,7 @@ const CardRow = () => {
         (key) => tokenPrices[key]?.lastPrice && tokenPrices[key]?.lastPrice !== "0.00"
       );
       setLoading(!hasData);
-    }, 1000);
+    }, 100000);
 
     return () => clearTimeout(loadingTimeout);
 

@@ -65,12 +65,12 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   const [quantity, setQuantity] = useState(selectedData.lot_size);
 
   const handleIncrease = () => {
-    const lotSize = selectedData?.lot_size || 1;
+    const lotSize = selectedData?.lot_size || selectedData.lot_size;
     setQuantity((prev) => prev + lotSize);
   };
 
   const handleDecrease = () => {
-    const lotSize = selectedData?.lot_size || 1;
+    const lotSize = selectedData?.lot_size || selectedData.lot_size;
     setQuantity((prev) => Math.max(lotSize, prev - lotSize));
   };
 

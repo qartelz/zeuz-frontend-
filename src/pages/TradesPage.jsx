@@ -4,7 +4,8 @@ import Navbar from "../components/Navbar";
 import ClosedOrders from "../components/ClosedOrders";
 import OpenOrders from "../components/OpenOrders";
 import axios from "axios";
-
+import CardRow from "../components/CardRow";
+import LmtOrder from "../components/LmtOrder";
 
 const TradesPage = () => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -58,6 +59,7 @@ const TradesPage = () => {
   return (
     <>
       <Navbar />
+      <CardRow />
 
       <div className="max-w-5xl mx-auto mt-8 p-4 min-h-screen font-poppins">
         <div className="flex items-center w-fit justify-start border rounded-full px-2 py-1 mb-8">
@@ -81,6 +83,17 @@ const TradesPage = () => {
           >
             Closed Positions
           </button>
+          <button
+            className={`px-4 py-2 rounded-full ${
+              activeTab === "Limit Order"
+                ? "bg-[#026E78] text-white"
+                : "text-gray-600"
+            }`}
+            onClick={() => setActiveTab("Limit Order")}
+          >
+            Order Book
+          </button>
+          
         </div>
 
         {activeTab === "Open Positions" && (
@@ -91,7 +104,11 @@ const TradesPage = () => {
         {activeTab === "Closed Positions" && (
           <ClosedOrders />
         )}
+        {activeTab === "Limit Order" && (
+          <LmtOrder />
+        )}
       </div>
+      
     </>
   );
 };

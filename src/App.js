@@ -13,8 +13,11 @@ import TradesPage from "./pages/TradesPage";
 
 import PrivateRoute from "./components/PrivateRoute"; 
 import { WebSocketProvider } from "./utils/WebSocketContext";
+import SearchTest from "./components/Searchtest";
+import SearchTeest from "./components/SearchTeest";
+import TestLearnPage from "./components/TestLearnPage";
 
-
+// import SearchTest from "./components/SearchTest";
 function App() {
   return (  
     
@@ -32,6 +35,7 @@ function App() {
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/token" element={<AdminPage />} /> 
+                <Route path = "/testsearch" element = {<TestLearnPage />}/>
 
                 <Route path="/" element={<PrivateRoute element={<DashboardPage />} />} />   
                 <Route path="/markets" element={<PrivateRoute element={<PracticePage />} />} />        

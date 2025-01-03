@@ -51,24 +51,47 @@ const TradeCard = ({ trade, onOpenModal, onPnLUpdate }) => {
     connectionAttempts,
   ]);
 
+  // const pnl = useMemo(() => {
+  //   return tokenData.lastPrice && parseFloat(tokenData.lastPrice) !== 0
+  //     ? (
+  //         (parseFloat(tokenData.lastPrice) - parseFloat(trade.avg_price)) *
+  //         parseFloat(trade.quantity)
+  //       ).toFixed(2)
+  //     : "N/A";
+  // }, [tokenData.lastPrice, trade.avg_price, trade.quantity]);
   const pnl = useMemo(() => {
-    return tokenData.lastPrice && parseFloat(tokenData.lastPrice) !== 0
-      ? (
-          (parseFloat(tokenData.lastPrice) - parseFloat(trade.avg_price)) *
-          parseFloat(trade.quantity)
-        ).toFixed(2)
-      : "N/A";
-  }, [tokenData.lastPrice, trade.avg_price, trade.quantity]);
-
+    if (!tokenData.lastPrice || parseFloat(tokenData.lastPrice) === 0) {
+      return "N/A"; // Return "N/A" if lastPrice is invalid
+    }
   
-  const isPositive = pnl !== "N/A" && parseFloat(pnl) >= 0;
-
+    const lastPrice = parseFloat(tokenData.lastPrice);
+    
+    const avgPrice = parseFloat(trade.avg_price);
+    const quantity = parseFloat(trade.quantity);
   
+    const pnlValue =
+      trade.trade_type === "Buy"
+        ? ( lastPrice - avgPrice ) * quantity // Buy: (Current - Average) * Quantity
+        : ( avgPrice -lastPrice ) * quantity; // Sell: (Average - Current) * Quantity
+  
+    return pnlValue.toFixed(2);
+  }, [tokenData.lastPrice, trade.avg_price, trade.quantity, trade.trade_type]);
+  
+  
+  // const isPositive = pnl !== "N/A" && parseFloat(pnl) >= 0;
+  const isPositive = useMemo(() => pnl !== "N/A" && parseFloat(pnl) >= 0, [pnl]);
+
   useEffect(() => {
     if (pnl !== "N/A") {
       onPnLUpdate(parseFloat(pnl));
     }
   }, [pnl, onPnLUpdate]);
+  
+  // useEffect(() => {
+  //   if (pnl !== "N/A") {
+  //     onPnLUpdate(parseFloat(pnl));
+  //   }
+  // }, [pnl, onPnLUpdate]);
 
 
   const [isExpanded, setIsExpanded] = useState(false);
