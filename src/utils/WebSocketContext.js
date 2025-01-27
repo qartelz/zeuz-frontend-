@@ -62,7 +62,7 @@ export const WebSocketProvider = ({ children }) => {
           }));
         }
         
-        console.log("Received data from WebSocket:", data);
+        // console.log("Received data from WebSocket:", data);
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
@@ -91,7 +91,7 @@ export const WebSocketProvider = ({ children }) => {
         })
       );
     }
-    console.log("WebSocket request sent for", touchline);
+    // console.log("WebSocket request sent for", touchline);
   };
 
   return (

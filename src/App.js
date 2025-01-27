@@ -16,6 +16,7 @@ import { WebSocketProvider } from "./utils/WebSocketContext";
 import SearchTest from "./components/Searchtest";
 import SearchTeest from "./components/SearchTeest";
 import TestLearnPage from "./components/TestLearnPage";
+import OptionsChains from "./components/OptionChains";
 
 // import SearchTest from "./components/SearchTest";
 function App() {
@@ -35,7 +36,11 @@ function App() {
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/token" element={<AdminPage />} /> 
-                <Route path = "/testsearch" element = {<TestLearnPage />}/>
+                
+                <Route path = "/testsearch" element = {<SearchTeest />}/>
+                <Route path = "/testchain" element = {<OptionsChains/>}/>
+                
+
 
                 <Route path="/" element={<PrivateRoute element={<DashboardPage />} />} />   
                 <Route path="/markets" element={<PrivateRoute element={<PracticePage />} />} />        

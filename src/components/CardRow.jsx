@@ -47,11 +47,11 @@ const CardRow = () => {
         if (tokenPrices[key]?.lastPrice === "0.00") {
           sendTouchlineRequest(key);
           setConnectionAttempts((prev) => prev + 1);
-          console.log(
-            `Retry touchline request for ${key}. Attempt: ${
-              connectionAttempts + 1
-            }`
-          );
+          // console.log(
+          //   `Retry touchline request for ${key}. Attempt: ${
+          //     connectionAttempts + 1
+          //   }`
+          // );
         }
       });
     }, 100000);
