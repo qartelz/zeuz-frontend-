@@ -45,10 +45,10 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
       } else {
         clearInterval(checkDataTimer);
       }
-    }, 10);
+    }, 10000);
 
     return () => clearInterval(checkDataTimer);
-  }, [
+  }, [tokenData.lastPrice,
     touchline,
     sendTouchlineRequest,
     tokenData.tokenData,
@@ -86,14 +86,15 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
     }
   };
 
-  console.log(selectedData, "ufiutfuyfoufutfufu");
+  console.log(JSON.stringify(selectedData), "the selected data");
+
 
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
   const broadcast_token = authData?.broadcast_token;
-  const broadcast_userid = authData?.broadcast_userid;
+ 
 
   const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
@@ -151,7 +152,7 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
   const [isBuy, setIsBuy] = useState(null);
   const [isSell, setIsSell] = useState(null);
 
-  console.log(initialIsBuy);
+ 
 
   const [beetleCoins, setBeetleCoins] = useState(null);
 
@@ -277,9 +278,8 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
 
   const [margin, setMargin] = useState(null);
   const marginValue = parseFloat(margin);
-  console.log(margin, "the narrrrrrrrrrrrrrrrr");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // console.log(margin, "the narrrrrrrrrrrrrrrrr");
+ 
 
   useEffect(() => {
     const fetchOrderMargin = async () => {
@@ -320,20 +320,19 @@ const BuySellPanel = ({ selectedData, initialIsBuy }) => {
         const data = await response.json();
         if (data.success) {
           setMargin(data.data.order_margin);
-        } else {
-          setError("Failed to fetch order margin");
         }
       } catch (err) {
-        setError("Error fetching data");
-      } finally {
-        setLoading(false);
-      }
+       
+      } 
     };
 
-    console.log(fetchOrderMargin, "the order marginssssss");
+    // console.log(fetchOrderMargin, "the order marginssssss");
 
     fetchOrderMargin();
   }, [
+    broadcast_token,
+    selectedData.trading_symbol,
+    selectedData.exchange,
     tokenData.lastPrice,
     quantity,
     isBuy,

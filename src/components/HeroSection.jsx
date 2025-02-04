@@ -26,7 +26,7 @@ const HeroSection = ({ username, welcomemsg, question, answers}) => {
   const [totalInvested, setTotalInvested] = useState(null);
 
   const [clsTrades, setClsTrades] = useState([]);
-  console.log(clsTrades,"this i  eheeeee ppppppppppppppppppppppp")
+  // console.log(clsTrades,"this i  eheeeee ppppppppppppppppppppppp")
 
   const fetchClsTrades = async () => {
     try {

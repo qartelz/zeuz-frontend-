@@ -88,7 +88,7 @@ const ClosedOrders = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto mt-8 p-0 md:p-4">
+    <div className="max-w-8xl mx-auto mt-8 p-0 md:p-4">
       {trades.length > 0 ? (
         <div className="overflow-x-auto">
           <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200">
@@ -101,14 +101,14 @@ const ClosedOrders = () => {
                   {trades.length}
                 </span>
               </div>
-              <div className="flex flex-col text-center">
+              {/* <div className="flex flex-col text-center">
                 <span className="text-sm font-bold text-gray-500">
                   Total Investment
                 </span>
                 <span className="text-lg font-semibold text-gray-800">
                   {totalInvestment.toFixed(2)}
                 </span>
-              </div>
+              </div> */}
 
               <div className="flex flex-col text-center">
                 <span className="text-sm font-bold text-gray-500">

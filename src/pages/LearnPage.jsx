@@ -17,7 +17,7 @@ const LearnPage = () => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [chartData, setChartData] = useState([]);
 
-  console.log(chartData, "fdhgdufgdfjdfjgdujgdbbdfjgdfgdfbdfjghdfgdfg");
+  // console.log(chartData, " chart data");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -308,7 +308,7 @@ const LearnPage = () => {
                 <div></div>
               </div>
             )}
-            <TradingViewWidget data={chartData} />
+            {/* <TradingViewWidget data={chartData} /> */}
           </div>
 
           <div>

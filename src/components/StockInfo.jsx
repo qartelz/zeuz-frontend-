@@ -6,9 +6,12 @@ const StockInfo = ({ selectedData }) => {
   const { tokenPrices, sendTouchlineRequest } = useWebSocket();
 
   const touchline = useMemo(
-    () => `${selectedData.exchange}|${selectedData.token_id}`,
-    [selectedData.exchange, selectedData.token_id]
+    () => `${selectedData.exchange}|${selectedData.token_id
+    }`,
+    [selectedData.exchange, selectedData.token_id
+    ]
   );
+
 
   const tokenData = useMemo(
     () =>
@@ -40,7 +43,7 @@ const StockInfo = ({ selectedData }) => {
       } else {
         clearInterval(checkDataTimer);
       }
-    }, 10);
+    }, 10000);
 
     return () => clearInterval(checkDataTimer);
   }, [

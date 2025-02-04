@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { PlusIcon } from "@heroicons/react/24/outline";
+
 import CoinSvg from '../assets/svg/CoinSvg';
 import axios from "axios";
 
 const BeetleBalance = () => {
 
-  const baseUrl = process.env.REACT_APP_BASE_URL;
   
   const authDataString = localStorage.getItem("authData");
   const authData = authDataString ? JSON.parse(authDataString) : null;
   const accessToken = authData?.access;
-  const [totalAvbl, setTotalAvbl] = useState(null); 
+  const [totalAvbl, setTotalAvbl] = useState(null);
 
 
   useEffect(() => {
@@ -37,7 +36,7 @@ const BeetleBalance = () => {
     };
 
     fetchProfitLoss();
-  }, []); 
+  }, [accessToken]); 
   
 
   return (
@@ -56,7 +55,7 @@ const BeetleBalance = () => {
           
           </div>
           <div className="flex items-center">
-            {/* <PlusIcon className="h-6 w-6 text-blue-500 ml-2" /> */}
+         
           </div>
         </div>
       </div>

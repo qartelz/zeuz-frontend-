@@ -16,6 +16,7 @@ const CardRow = () => {
     "NSE|NiftyPSUBank0,NSE|NiftyPSE",
     "NSE|NiftyFinService",
   ];
+
   
 
   const filteredTokenPrices = useMemo(() => {

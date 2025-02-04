@@ -2,11 +2,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 
 import {
-  ChevronDownIcon,
+ 
   MinusIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
-import BeetleBalance from "./BeetleBalance";
 
 import Alert from "@mui/material/Alert";
 import { useWebSocket } from "../utils/WebSocketContext";
@@ -27,7 +26,6 @@ const BuySellSub = ({
   const accessToken = authData?.access;
   const user_id = authData?.user_id;
   const broadcast_token = authData?.broadcast_token;
-  const broadcast_userid = authData?.broadcast_userid;
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [margin, setMargin] = useState("0.00");
@@ -90,8 +88,8 @@ const BuySellSub = ({
 
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [isDelivery, setIsDelivery] = useState();
-  console.log(isDelivery, "the devlojhvcxcvbn");
+  const [isDelivery] = useState();
+
 
   const [quantitys, setQuantitys] = useState(quantity);
   console.log(quantity, "the quantiqqqqqqqqqqqqqqqqqqqq");
@@ -99,11 +97,7 @@ const BuySellSub = ({
   const lotSize = selectedTrade?.lot_size || 1;
   const [errorMessage, setErrorMessage] = useState("");
 
-  const isMultipleOf0_05 = (value) => {
-    const scaled = Math.round(parseFloat(value) * 100);
-
-    return scaled % 5 === 0;
-  };
+  
 
   
 
@@ -152,7 +146,7 @@ const BuySellSub = ({
 
   const [selectedOrderType, setSelectedOrderType] = useState("Market Order");
 
-  const [beetleCoins, setBeetleCoins] = useState(null);
+  const [ setBeetleCoins] = useState(null);
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -172,7 +166,7 @@ const BuySellSub = ({
 
       fetchBeetleCoins();
     }
-  }, []);
+  }, [setBeetleCoins,baseUrl]);
     
 
   const handleTrade = async () => {
@@ -268,8 +262,7 @@ const BuySellSub = ({
   const priceType = selectedOrderType === "Market Order" ? "MKT" : "LMT";
 
   console.log(margin, "the narrrrrrrrrrrrrrrrr");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [ setError] = useState(null);
 
   useEffect(() => {
     const fetchOrderMargin = async () => {
@@ -306,8 +299,11 @@ const BuySellSub = ({
               oms_partner_source: "kambala",
             }),
           }
+          
         );
+        
         const data = await response.json();
+        console.log(data, "Response from fetchOrderMargin");
         if (data.success) {
           setMargin(data.data.order_margin);
         } else {
@@ -316,14 +312,18 @@ const BuySellSub = ({
       } catch (err) {
         setError("Error fetching data");
       } finally {
-        setLoading(false);
+       
       }
     };
 
     console.log(fetchOrderMargin, "the order marginssssss");
 
     fetchOrderMargin();
-  }, [
+  }, [setError,
+    selectedData.trading_symbol,
+    broadcast_token,
+    selectedData.exchange,
+    setBeetleCoins,
     tokenData.lastPrice,
     quantitys,
     isBuy,
