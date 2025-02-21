@@ -159,15 +159,15 @@ const HeroSection = ({ username, welcomemsg, question, answers}) => {
                 <ReceiptIndianRupee className="w-4 h-4" />
               </div>
 
-              <h3 className="text-xl font-semibold text-gray-900">
+              <h3 className="lg: text-xl font-semibold text-gray-900">
                 Your Holdings.
               </h3>
             </div>
 
-            <div className="rounded-tl-none rounded-tr-[70%] rounded-bl-2xl rounded-br-2xl border border-gray-300 bg-[#F6FEFF] shadow-md">
+            <div className="rounded-tl-none rounded-tr-[50%]  sm:rounded-tr-[70%] rounded-bl-2xl rounded-br-2xl border border-gray-300 bg-[#F6FEFF] shadow-md">
 
               {trades.length > 0 ? (
-                <div className="max-w-5xl">
+                <div className="max-w-5xl min-h-[300px] justify-center flex flex-col">
                   <OpenOrders trades={trades} maxTrades={4} refreshTrades={refreshTrades} />
                   <div className=" text-right">
                     <button
@@ -180,14 +180,14 @@ const HeroSection = ({ username, welcomemsg, question, answers}) => {
                 </div>
               ) : (
                 <div className="mt-4 flex flex-col items-center">
-                  <div className="rounded-lg w-full flex items-center justify-center p-6">
-                    <NewChartSvg />
+                  <div className="rounded-lg w-full  flex items-center justify-center p-6">
+                    <NewChartSvg className="" />
                   </div>
                   <p className="mt-4 text-center text-3xl font-bold text-black">
                     You Haven’t Made <br />
                     Your{" "}
-                    <span className="inline-block text-[#0E8190]">
-                      First Trade <FirstTradeSvg />
+                    <span className="inline-block text-[#0E8190] ">
+                      First Trade <FirstTradeSvg  />
                     </span>
                     Yet!
                   </p>
@@ -203,8 +203,8 @@ const HeroSection = ({ username, welcomemsg, question, answers}) => {
             </div>
           </div>
 
-          <div className="  ">
-            <h3 className="text-3xl  font-bold text-black  ">My Assets</h3>
+          <div className=" mt-10">
+            <h3 className="text-3xl  font-bold text-black mt-10  ">My Assets</h3>
 
             <div className="p-4 rounded-lg ">
               <div className="mt-0 flex-col justify-between space-y-4">

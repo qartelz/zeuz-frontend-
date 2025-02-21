@@ -60,10 +60,12 @@ const DashboardPage = () => {
 
   
   return (
-    <div className='font-poppins' >
+    <div className='font-poppins '  >
      
     
         <Navbar/>
+
+        < div className='px-6 lg:px-0'>
         <HeroSection 
         trades={trades}
         username={name}
@@ -72,6 +74,8 @@ const DashboardPage = () => {
         answers="With ZeuZ, you can learn by doing in a Risk-Free environment. Let’s get started on your journey to becoming a confident trader!"
         
       />
+
+      </div>
     
     
       

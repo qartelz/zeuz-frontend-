@@ -49,7 +49,7 @@ const PracticePage = () => {
       <Navbar />
       <div className="flex flex-row h-screen items-center justify-between">
         <div className="flex  items-center h-screen">
-          <PracticeSvg className="w-full " />
+          <PracticeSvg className="w-64 -z-10 lg:h-full lg:w-full absolute inset-0 lg:static " />
         </div>
 
         <div className="flex flex-col   w-full  p-4 md:p-8">

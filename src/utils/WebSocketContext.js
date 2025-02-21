@@ -1,36 +1,54 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const WebSocketContext = createContext();
-const authDataString = localStorage.getItem("authData");
-const authData = authDataString ? JSON.parse(authDataString) : null;
-const accessToken = authData?.access;
-const user_id = authData?.user_id;
-const broadcast_token = authData?.broadcast_token;
-const broadcast_userid = authData?.broadcast_userid;
 
 export const WebSocketProvider = ({ children }) => {
   const wsRef = useRef(null);
   const [tokenPrices, setTokenPrices] = useState({});
   const [isConnected, setIsConnected] = useState(false);
   const [dataReceived, setDataReceived] = useState(false);
+  const [broadcastToken, setBroadcastToken] = useState(null);
+  const [lastMessage, setLastMessage] = useState(null); 
+
+  useEffect(() => {
+    const checkAuthData = () => {
+      const authDataString = localStorage.getItem("authData");
+      const authData = authDataString ? JSON.parse(authDataString) : null;
+      const token = authData?.broadcast_token;
+      
+      if (token) {
+        setBroadcastToken(token);
+        // console.log("Broadcast token updated:", token);
+      } else {
+        console.log("No broadcast token found");
+      }
+    };
+
+    checkAuthData();
+    const intervalId = setInterval(checkAuthData, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const initialData = {
     t: "c",
     uid: "KE0070",
     actid: "KE0070",
-    susertoken: `${broadcast_token}`,
+    susertoken: broadcastToken,
     source: "API",
   };
 
   const connectWebSocket = () => {
+    if (!broadcastToken) return;
+
     const ws = new WebSocket("wss://orca-uatwss.enrichmoney.in/ws");
     wsRef.current = ws;
+
+    console.log("Attempting to connect WebSocket...");
 
     const heartbeatInterval = 60000;
     let heartbeatTimer;
 
     ws.onopen = () => {
-      
       console.log("WebSocket connected");
       ws.send(JSON.stringify(initialData));
       setIsConnected(true);
@@ -39,14 +57,17 @@ export const WebSocketProvider = ({ children }) => {
       heartbeatTimer = setInterval(() => {
         const heartbeatMessage = { t: "h" };
         ws.send(JSON.stringify(heartbeatMessage));
-        console.log(heartbeatMessage, "heartbeat");
+        console.log("Heartbeat sent:", heartbeatMessage);
       }, heartbeatInterval);
     };
 
     ws.onmessage = (event) => {
-      console.log("Message received:", event.data);
+      const data = JSON.parse(event.data);
+      console.log("Message received:", data);
+      setLastMessage(data);
       try {
         const data = JSON.parse(event.data);
+        console.log("Parsed data:", data);
         if (data.t === 'tk' && data.tk) {
           const key = `${data.e}|${data.tk}`;
           setTokenPrices((prev) => ({
@@ -57,6 +78,7 @@ export const WebSocketProvider = ({ children }) => {
               percentChange: data.pc || '0.00',
             },
           }));
+          setDataReceived(true); // Mark that data has been received
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
@@ -71,20 +93,24 @@ export const WebSocketProvider = ({ children }) => {
       console.log("WebSocket disconnected");
       setIsConnected(false);
       clearInterval(heartbeatTimer);
-      // Attempt to reconnect after a delay
-      setTimeout(connectWebSocket, 3000); // Reconnect after 3 seconds
+      setDataReceived(false);
+      console.log("Attempting to reconnect in 3 seconds...");
+      setTimeout(connectWebSocket, 3000);
     };
   };
 
   useEffect(() => {
-    connectWebSocket();
+    if (broadcastToken) {
+      connectWebSocket();
+    }
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
+        console.log("WebSocket connection closed");
       }
     };
-  }, []);
+  }, [broadcastToken]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -94,7 +120,7 @@ export const WebSocketProvider = ({ children }) => {
           wsRef.current.send(JSON.stringify(initialData));
         }
       }
-    }, 10000); // Adjust the timeout duration as needed
+    }, 10000);
 
     return () => clearTimeout(timeoutId);
   }, [dataReceived, isConnected]);
@@ -107,11 +133,19 @@ export const WebSocketProvider = ({ children }) => {
           k: touchline,
         })
       );
+      // console.log("Touchline request sent:", touchline);
+    } else {
+      console.warn("Cannot send touchline request, WebSocket is not open");
     }
   };
 
   return (
-    <WebSocketContext.Provider value={{ tokenPrices, sendTouchlineRequest, isConnected }}>
+    <WebSocketContext.Provider value={{ 
+      tokenPrices, 
+      sendTouchlineRequest, 
+      isConnected,
+      broadcastToken // Expose broadcast token status if needed
+    }}>
       {children}
     </WebSocketContext.Provider>
   );

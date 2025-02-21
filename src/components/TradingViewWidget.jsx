@@ -67,8 +67,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { createChart } from 'lightweight-charts';
+import { useWebSocket } from '../utils/WebSocketContext';
 
-const TradingViewWidget = () => {
+const TradingViewWidget = ({ selectedData }) => {
+
+    const { tokenPrices, isConnected, broadcastToken, lastMessage } = useWebSocket();
+    const formattedMessage = lastMessage ? JSON.stringify(JSON.parse(lastMessage), null, 2) : "No message received yet.";
+
+
     const [chartData, setChartData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -166,9 +172,19 @@ const TradingViewWidget = () => {
 
     return (
         <div className="trading-view-widget">
-            {loading && <p>Loading chart data...</p>}
+            {/* {loading && <p>Loading chart data...</p>}
             {error && <p className="error">{error}</p>}
-            {!loading && !error && <div ref={chartContainerRef} style={{ width: '100%', height: '400px' }} />}
+            {!loading && !error && <div ref={chartContainerRef} style={{ width: '100%', height: '400px' }} />} */}
+
+<h2>WebSocket Connection Status</h2>
+      <p><strong>Connection Status:</strong> {isConnected ? 'Connected' : 'Disconnected'}</p>
+      {/* <p><strong>Broadcast Token:</strong> {broadcastToken || 'N/A'}</p> */}
+      <h3>Current Token Prices:</h3>
+      <pre>{JSON.stringify(tokenPrices, null, 2) || 'No token prices available'}</pre>
+      <h3>Last Message Received:</h3>
+      <pre>{formattedMessage ? formattedMessage : "No message received yet."}</pre>
+
+            
         </div>
     );
 };

@@ -61,13 +61,13 @@ const CardRow = () => {
   }, [keysToDisplay, sendTouchlineRequest, tokenPrices, connectionAttempts]);
 
   return (
-    <div className="flex items-center  justify-center flex-nowrap gap-2 p-2">
+    <div className="flex items-center overflow-x-scroll lg:overflow-hidden  justify-center flex-nowrap gap-2 p-2">
       
       {Object.entries(filteredTokenPrices).map(
         ([key, { lastPrice, percentChange }]) => (
           <div
             key={key}
-            className="bg-white hover:scale-105 shadow-md whitespace-nowrap overflow-hidden rounded-md  px-4 py-1 w-full sm:w-1/2 lg:w-[180px] flex justify-between items-center"
+            className="bg-white hover:scale-105 shadow-md whitespace-nowrap   rounded-md  px-4 py-1 w-full sm:w-1/2 lg:w-[180px] flex justify-between items-center"
           >
             <div>
               <h3 className="font-light font-poppins text-[#0E8190] text-md ">
