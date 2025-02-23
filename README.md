@@ -1,24 +1,31 @@
-# zeuz-frontend-
-### Installation
+# Zeuz Frontend
 
-1. Clone the repository:
+This is the frontend for the **Zeuz** project, built using **React**.
 
-   ```bash
-   git clone https://github.com/qartelz/zeuz-frontend.git
-   cd zeuz-frontend
+## Installation Guide
 
-2. Install dependencies:
+### 1. Clone the Repository
+```sh
+git clone 
+cd zeuz-frontend
+```
 
-If you encounter any issues while running npm install, you can use the --legacy-peer-deps flag to resolve potential dependency conflicts:
-
+### 2. Install Dependencies
+Run the following command to install the required dependencies:
+```sh
+npm install
+```
+> If you encounter dependency issues, try running:
+```sh
 npm install --legacy-peer-deps
+```
 
-
-
-Running the Application
-
-To start the app locally, use the following command:
-
+### 3. Start the Development Server
+Run the following command to start the application locally:
+```sh
 npm start
+```
+This will launch the app in your browser at **`http://localhost:3000`**.
 
-This will start the development server and open the app in your browser at http://localhost:3000.
+
+
